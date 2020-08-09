@@ -2,7 +2,13 @@
 
 	<PropertyGroup>
     	<TargetFramework>netstandard2.0</TargetFramework>
-		<Version>0.0.3</Version>
+		<Version>0.0.4</Version>
+		<!--Properties for Nuget-->
+		<Authors>Alex Paterson</Authors>
+		<Description>This is package simply tests github actions and automated package building</Description>
+		<RequireLicenseAcceptance>False</RequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
+		<RepositoryUrl>http://empty.com</RepositoryUrl>
 	</PropertyGroup>
 
 </Project>
