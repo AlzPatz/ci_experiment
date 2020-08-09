@@ -1,0 +1,15 @@
+<!--.nuspec file to define some additional package information not currently in .csproj-->
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<metadata>
+	<id>$id$</id>
+	<version>$version$<version>
+	<authors>Alex Paterson</authors>
+	<owners>Alex Paterson</owners>
+	<projectUrl>http://www.doesnotexist.com</projectUrl>
+	<license type="expression">MIT OR Apache-2.0</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>This is the description of the pacakge - this is a test package</description>
+    <tags>example</tags>
+</metadata>
+</package>
