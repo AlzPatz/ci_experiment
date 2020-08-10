@@ -21,8 +21,8 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-      # with: 
-        # fetch-depth: 0 # There is an error with lib2git i think is small repos, this was work around
+      with: 
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1.5.0
     # with:
