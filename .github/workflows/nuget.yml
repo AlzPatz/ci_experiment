@@ -53,7 +53,7 @@ jobs:
         # setCommonVars: # optional
         # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
         # toolVersion: # optional
-    - run: echo "$NBGV_SemVer2 $NuGetPackageVersion"
+    - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
     - name: Publish NuGet
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
@@ -77,3 +77,4 @@ jobs:
         # NUGET_SOURCE: # optional, default is https://api.nuget.org
         # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
         # INCLUDE_SYMBOLS: # optional
+    - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
