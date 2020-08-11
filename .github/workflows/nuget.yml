@@ -55,10 +55,10 @@ jobs:
         # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
         # toolVersion: # optional
     - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
+    - name: Change Directory
+      run: cd ci_experiment
     - name: Generate NuGet package
-      run:
-        cd ci_experiment
-        dotnet pack -c Release -o out -p:PackageVersion=$NBGV_NuGetPackageVersion
+      run: dotnet pack -c Release -o out -p:PackageVersion=$NBGV_NuGetPackageVersion
     - name: Publish NuGet
       run:
         dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${secrets.NUGET_API_KEY} --skip-duplicate 
