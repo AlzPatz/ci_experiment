@@ -12,7 +12,8 @@ on:
 
 env:
   PUBLISH_MYGET: false
-  PUBLISH_NUGET: false  
+  PUBLISH_NUGET: false
+  NB_FULL_VERSION: "empty"  
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -44,6 +45,8 @@ jobs:
           # setCommonVars: # optional
           # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
           # toolVersion: # optional
+      - name: Copy full version to environment variable
+        run: echo ::set-env name=NB_FULL_VERSION::{$NBGV_NuGetPackageVersion}  
   modify_version:
     needs: build
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
@@ -54,7 +57,7 @@ jobs:
       - name: Echo Nuget Boolean
         run: echo "Publish to MyGET? --> $PUBLISH_MYGET"
       - name: Echo nbgv nuget package version
-        run: echo "$NBGV_NuGetPackageVersion"
+        run: echo "$NB_FULL_VERSION"
 
       
       
