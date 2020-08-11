@@ -51,8 +51,11 @@ jobs:
     steps:
       - name: Set MyGET Build Boolean
         run: echo ::set-env name=PUBLISH_MYGET::true
-          echo "$NBGV_NuGetPackageVersion"
-          echo "Publish to MyGET? --> $PUBLISH_MYGET"
+      - name: Echo Nuget Boolean
+        run: echo "Publish to MyGET? --> $PUBLISH_MYGET"
+      - name: Echo nbgv nuget package version
+        run: echo "$NBGV_NuGetPackageVersion"
+
       
       
       
