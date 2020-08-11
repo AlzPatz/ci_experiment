@@ -11,15 +11,27 @@ on:
   pull_request:
 
 env:
-  PUBLISH_MYGET: false
-  PUBLISH_NUGET: false
-  NB_FULL_VERSION: "empty"  
+  PLACEHOLDER: "data"
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ ubuntu-latest ] #, windows-latest, macos-latest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.5.0
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test
+  modify_version:
+    needs: build
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -30,11 +42,8 @@ jobs:
       - name: Restore
         run: dotnet restore
       - name: Build
-        run: dotnet build -c Debug --no-restore
-      - name: Test
-        run: dotnet test
+        run: dotnet build -c Release --no-restore
       - name: Run Nerdbank.GitVersioning
-        if: matrix.os == 'ubuntu-latest' #Only need to run for one operating system
         uses: dotnet/nbgv@v0.3.1
         with:
           # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
@@ -45,22 +54,13 @@ jobs:
           # setCommonVars: # optional
           # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
           # toolVersion: # optional
-      - name: Copy full version to environment variable
-        run: echo ::set-env name=NB_FULL_VERSION::"${{env.NBGV_NuGetPackageVersion}}"
-        #run: echo ::set-env name=NB_FULL_VERSION::"notempty"
-        #run: echo ::set-env name=PUBLISH_MYGET::true
-  modify_version:
-    needs: build
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set MyGET Build Boolean
-        #run: echo "Yay"
-        run: echo ::set-env name=PUBLISH_MYGET::true
-      - name: Echo nbgv nuget package version
-        run: echo "$NB_FULL_VERSION"
-      - name: Echo Nuget Boolean
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push':
+          - run: echo ::set-env name=PUBLISH_MYGET::true
+        - name: Echo Nuget Boolean
         run: echo "Publish to MyGET? --> $PUBLISH_MYGET"
+        - name: Echo Version
+        run: echo "$NBGV_NuGetPackageVersion"
+    
 
       
       
