@@ -58,7 +58,7 @@ jobs:
     - name: Change Directory
       run: cd ci_experiment
     - name: Generate NuGet package
-      run: dotnet pack -c Release -o out -p:PackageVersion=$NBGV_NuGetPackageVersion
+      run: dotnet pack -c Release -o . -p:PackageVersion=$NBGV_NuGetPackageVersion
     - name: Publish NuGet
       run:
         dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
