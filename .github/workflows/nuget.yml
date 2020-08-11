@@ -49,9 +49,10 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - run: set-env name=PUBLISH_MYGET::true
-      - run: echo "$NBGV_NuGetPackageVersion"
-      - run: echo "Publish to MyGET? --> $PUBLISH_MYGET"
+      - name: Set MyGET Build Boolean
+        run: echo ::set-env name=PUBLISH_MYGET::true
+          echo "$NBGV_NuGetPackageVersion"
+          echo "Publish to MyGET? --> $PUBLISH_MYGET"
       
       
       
