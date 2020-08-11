@@ -55,6 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set MyGET Build Boolean
+        run: echo "Yay"
         #run: echo ::set-env name=PUBLISH_MYGET::true
       - name: Echo Nuget Boolean
         run: echo "Publish to MyGET? --> $PUBLISH_MYGET"
