@@ -58,7 +58,7 @@ jobs:
     - name: Generate NuGet package
       run:
         cd ci_experiment
-        dotnet pack -c Release -o out /p:Version=${steps.nbgv.outputs.SemVer2}
+        dotnet pack -c Release -o out /p:Version=$(steps.nbgv.outputs.SemVer2)
     - name: Publish NuGet
       run:
         dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${secrets.NUGET_API_KEY} --skip-duplicate 
