@@ -54,7 +54,7 @@ jobs:
         # setCommonVars: # optional
         # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
         # toolVersion: # optional
-    # - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
+    - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
     - name: Generate NuGet package
       run:
         cd ci_experiment
