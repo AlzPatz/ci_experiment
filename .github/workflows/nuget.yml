@@ -54,11 +54,12 @@ jobs:
           # setCommonVars: # optional
           # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
           # toolVersion: # optional
+      - name: Set MyGet Push
         if: github.ref == 'refs/heads/master' && github.event_name == 'push':
-          - run: echo ::set-env name=PUBLISH_MYGET::true
-        - name: Echo Nuget Boolean
+          run: echo ::set-env name=PUBLISH_MYGET::true
+      - name: Echo Nuget Boolean
         run: echo "Publish to MyGET? --> $PUBLISH_MYGET"
-        - name: Echo Version
+      - name: Echo Version
         run: echo "$NBGV_NuGetPackageVersion"
     
 
