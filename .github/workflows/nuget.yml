@@ -43,32 +43,34 @@ jobs:
         uses: actions/setup-dotnet@v1.5.0
       - name: Restore
         run: dotnet restore
-      - name: Change to project directory
-        run: cd ci_experiment
       - name: Build and Pack Release if a master push
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
+          cd ci_experiment
           dotnet build -c Release --no-restore
           dotnet pack -c Release -o . 
       - name: Build and Pack Debug if not a master push
         if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
         run: |
+          cd cd_experiment
           dotnet build -c Debug --no-restore
           dotnet pack -c Debug -o . 
       - name: Publish NuGet 
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run:
+        run: |
+          cd ci_experiment
           dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
       - name: Publish MyGet
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           echo "Placeholder"
+          cd ci_experiment
           ls
       - name: Upload package as artifact
         uses: actions/upload-artifact@v2
         with:
           name: nupkg
-          path: .*.nupkg
+          path: ./ci_experiment/*.nupkg
         
      # - name: Run Nerdbank.GitVersioning
      #   uses: dotnet/nbgv@v0.3.1
