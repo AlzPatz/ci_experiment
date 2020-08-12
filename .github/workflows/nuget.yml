@@ -40,7 +40,7 @@ jobs:
         uses: dotnet/nbgv@v0.3.1
         with:
           # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
-          path: ./ci_experiment/
+          path: .
           # Defines ALL version variables as environment variables, with a "NBGV_" prefix.
           # setAllVars: true # optional
           # Defines a few common version variables as environment variables, with a "Git" prefix (e.g. GitBuildVersion, GitBuildVersionSimple, GitAssemblyInformationalVersion).
