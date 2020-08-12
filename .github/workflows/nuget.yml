@@ -35,6 +35,10 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nerdbank.gitversioning can do its work.
       - name: Run Nerdbank.GitVersioning
         id: nb
         uses: dotnet/nbgv@v0.3.1
