@@ -6,7 +6,7 @@ namespace ci_experiment
     {
 		public static void Speak()
 		{
-			Console.WriteLine("Speaking Version #5");
+			Console.WriteLine("Speaking Version - Should only show on MYGET feed");
 		}
 
 		public static void SomethingElse()
