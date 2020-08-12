@@ -11,7 +11,7 @@ namespace ci_experiment
 
 		public static void SomethingElse()
 		{
-			Console.WriteLine("This does something else I guess");
+			Console.WriteLine("This does something else #2 I guess");
 		}
     }
 }
