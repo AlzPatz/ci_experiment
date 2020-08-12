@@ -64,6 +64,7 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           cd ci_experiment
+          rename 's/\.nupkg$/-dev.nupkg/' *nupkg
           dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
       - name: Upload package as artifact
         uses: actions/upload-artifact@v2
