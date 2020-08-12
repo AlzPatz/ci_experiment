@@ -43,6 +43,8 @@ jobs:
         uses: actions/setup-dotnet@v1.5.0
       - name: Restore
         run: dotnet restore
+      - name: Change to project directory
+        run: cd ci_experiment
       - name: Build and Pack Release if a master push
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
@@ -52,7 +54,7 @@ jobs:
         if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
         run: |
           dotnet build -c Debug --no-restore
-          dotnet pack -c Release -o . 
+          dotnet pack -c Debug -o . 
       - name: Publish NuGet 
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run:
@@ -66,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nupkg
-          path: .ci_experiment.1.2.4.nupkg
+          path: .*.nupkg
         
      # - name: Run Nerdbank.GitVersioning
      #   uses: dotnet/nbgv@v0.3.1
