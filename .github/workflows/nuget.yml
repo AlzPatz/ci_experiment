@@ -48,7 +48,7 @@ jobs:
           # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
           # toolVersion: # optional
       - name: Echo values
-      - run: echo "${{ steps.nb.outputs.SemVer2 }}"
+        run: echo "${{ steps.nb.outputs.SemVer2 }}"
               
         #OLD
 #  buildpackandpush:
