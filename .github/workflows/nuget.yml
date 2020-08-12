@@ -21,8 +21,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 # avoid shallow clone so nerdbank.gitversioning can do its work.
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1.5.0
       - name: Restore
@@ -43,14 +41,7 @@ jobs:
         id: nb
         uses: dotnet/nbgv@v0.3.1
         with:
-          # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
           path: ./ci_experiment/
-          # Defines ALL version variables as environment variables, with a "NBGV_" prefix.
-          # setAllVars: true # optional
-          # Defines a few common version variables as environment variables, with a "Git" prefix (e.g. GitBuildVersion, GitBuildVersionSimple, GitAssemblyInformationalVersion).
-          # setCommonVars: # optional
-          # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
-          # toolVersion: # optional
       - name: Echo values
         run: |
           echo "SemVer2: ${{ steps.nb.outputs.SemVer2 }}"
@@ -59,11 +50,30 @@ jobs:
           echo "SimpleVersion: ${{ steps.nb.outputs.SimpleVersion }}"
           echo "SemVer1: ${{ steps.nb.outputs.SemVer1 }}"
           echo "NugetPackageVersion: ${{ steps.nb.outputs.NugetPackageVersion }}"
-      - name: Pack Te
+      - name: If pushing to master, pack a release version with 0.0.0 format and upload to nuget.org
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           cd ci_experiment
+          dotnet pack -c Release -p:Version="${{ steps.nb.outputs.SimpleVersion }}" -p:PackageID="ci_experiment" -o . 
+          dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
+      - name: If pushing to master, pack a debug version with 0.0.0.0 format and upload to myget under -dev name
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: |
+          cd ci_experiment
+          rm *.nupkg
           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.Version }}" -p:PackageID="ci_experiment-dev" -o . 
-              
+          dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
+      - name: If we are NOT pushing to master, pack a version using nerdbank git tagged version under -dev name 
+        if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
+        run: |
+           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVert2 }}" -p:PackageID="ci_experiment-dev" -o . 
+      - name: Upload (latest) built package as action artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: nupkg
+          path: ./ci_experiment/*.nupkg
+        
+          
         #OLD
 #  buildpackandpush:
 #    needs: test
