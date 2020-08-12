@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nupkg
-          path: ./ci_experiment/*.nupkg
+          path: .ci_experiment.1.2.4.nupkg
         
      # - name: Run Nerdbank.GitVersioning
      #   uses: dotnet/nbgv@v0.3.1
