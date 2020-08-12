@@ -8,5 +8,10 @@ namespace ci_experiment
 		{
 			Console.WriteLine("Speaking Version #4");
 		}
+
+		public static void SomethingElse()
+		{
+			Console.Writeline("This does something else I guess")
+		}
     }
 }
