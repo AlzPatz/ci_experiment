@@ -3,7 +3,7 @@
 #   - Build (on all platforms)
 #   - Test 
 #   - Create version number using Nerdbank.Gitversioning
-# 
+#   UPDATE THIS
 # 
 name: .Net Core  
 on:
@@ -31,7 +31,7 @@ jobs:
         run: dotnet build -c Release --no-restore
       - name: Test
         run: dotnet test
-  modify_version:
+  packandpush:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -43,13 +43,29 @@ jobs:
         uses: actions/setup-dotnet@v1.5.0
       - name: Restore
         run: dotnet restore
-      - name: Build
-        run: dotnet build -c Release --no-restore
-      - name: Generate NuGet package
-        run: dotnet pack -c Release -o . 
-      - name: Publish NuGet
+      - name: Build and Pack Release if a master push
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: |
+          dotnet build -c Release --no-restore
+          dotnet pack -c Release -o . 
+      - name: Build and Pack Debug if not a master push
+        if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
+        run: |
+          dotnet build -c Debug --no-restore
+          dotnet pack -c Release -o . 
+      - name: Publish NuGet 
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run:
           dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
+      - name: Publish MyGet
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: echo "Placeholder"
+      - name: Upload package as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: nupkg
+          path: .*.nupkg
+        
      # - name: Run Nerdbank.GitVersioning
      #   uses: dotnet/nbgv@v0.3.1
      #   with:
