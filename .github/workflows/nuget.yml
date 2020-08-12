@@ -67,7 +67,7 @@ jobs:
         run: |
           cd ci_experiment
           rm *.nupkg
-          dotnet pack -c Debug -p:Version="1.2.6" -o . 
+          dotnet pack -c Debug -p:PackageID="ci_experiment-dev" -o . 
           dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
       - name: Upload package as artifact
         uses: actions/upload-artifact@v2
