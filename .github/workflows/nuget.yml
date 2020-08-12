@@ -59,7 +59,9 @@ jobs:
           dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
       - name: Publish MyGet
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: echo "Placeholder"
+        run: |
+          echo "Placeholder"
+          ls
       - name: Upload package as artifact
         uses: actions/upload-artifact@v2
         with:
