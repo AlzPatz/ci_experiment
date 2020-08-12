@@ -35,48 +35,71 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Run Nerdbank.GitVersioning
+        id: nb
+        uses: dotnet/nbgv@v0.3.1
         with:
-          fetch-depth: 0 # avoid shallow clone so nerdbank.gitversioning can do its work.
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.5.0
-      - name: Restore
-        run: dotnet restore
-      - name: Build and Pack Release if a master push
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: |
-          cd ci_experiment
-          dotnet build -c Release --no-restore
-          dotnet pack -c Release -o . 
-      - name: Build and Pack Debug if not a master push
-        if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
-        run: |
-          cd cd_experiment
-          dotnet build -c Debug --no-restore
-          dotnet pack -c Debug -o . 
-      - name: Publish NuGet 
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: |
-          cd ci_experiment
-          dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-      - name: Set current datetime as environment variable
-        run: echo "::set-env name=NOW::$(date +'%Y.%m.%d-%H%M%S')"
-      - name: Publish MyGet
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: |
-          cd ci_experiment
-          rm *.nupkg
-          dotnet pack -c Debug -p:PackageID="ci_experiment-dev" -o . 
-          dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
-      - name: Upload package as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: nupkg
-          path: ./ci_experiment/*.nupkg
-      
-    #-p:PackageID="ci_experiment-dev"   -p:PackageVersion=$NOW 
-    # - name: Run Nerdbank.GitVersioning
+          # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
+          path: ./ci_experiment/
+          # Defines ALL version variables as environment variables, with a "NBGV_" prefix.
+          # setAllVars: true # optional
+          # Defines a few common version variables as environment variables, with a "Git" prefix (e.g. GitBuildVersion, GitBuildVersionSimple, GitAssemblyInformationalVersion).
+          # setCommonVars: # optional
+          # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
+          # toolVersion: # optional
+      - name: Echo values
+      - run: echo "${{ steps.nb.outputs.SemVer2 }}"
+              
+        #OLD
+#  buildpackandpush:
+#    needs: test
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 0 # avoid shallow clone so nerdbank.gitversioning can do its work.
+#      - name: Setup .NET Core
+#        uses: actions/setup-dotnet@v1.5.0
+#      - name: Restore
+#        run: dotnet restore
+#      - name: Build and Pack Release if a master push
+#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+#        run: |
+##          cd ci_experiment
+#          dotnet build -c Release --no-restore
+#          dotnet pack -c Release -o . 
+#      - name: Build and Pack Debug if not a master push
+#        if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
+#        run: |
+#          cd cd_experiment
+#          dotnet build -c Debug --no-restore
+#          dotnet pack -c Debug -o . 
+#      - name: Publish NuGet 
+#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+#        run: |
+#          cd ci_experiment
+#          dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
+#      - name: Set current datetime as environment variable
+#        run: echo "::set-env name=NOW::$(date +'%Y.%m.%d-%H%M%S')"
+#      - name: Publish MyGet
+#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+#        run: |
+#          cd ci_experiment
+#          rm *.nupkg
+#          dotnet pack -c Debug -p:PackageID="ci_experiment-dev" -o . 
+#          dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
+#      - name: Upload package as artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: nupkg
+#          path: ./ci_experiment/*.nupkg
+#   END OF OLD
+
+
+
+#    #-p:PackageID="ci_experiment-dev"   -p:PackageVersion=$NOW 
+#    # - name: Run Nerdbank.GitVersioning
      #   uses: dotnet/nbgv@v0.3.1
      #   with:
      #     # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
