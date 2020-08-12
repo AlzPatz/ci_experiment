@@ -1,88 +1,153 @@
+# .NET Core Workflow:
+# On every commit and pull request (any branch):
+#   - Build (on all platforms)
+#   - Test 
+#   - Create version number using Nerdbank.Gitversioning
+# 
+# 
+name: .Net Core  
+on:
+  push:
+  pull_request:
+
+env:
+  PLACEHOLDER: "data"
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ] #, windows-latest, macos-latest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.5.0
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test
+  modify_version:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.5.0
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Run Nerdbank.GitVersioning
+        uses: dotnet/nbgv@v0.3.1
+        with:
+          # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
+          # path: # optional, default is .
+          # Defines ALL version variables as environment variables, with a "NBGV_" prefix.
+          setAllVars: true # optional
+          # Defines a few common version variables as environment variables, with a "Git" prefix (e.g. GitBuildVersion, GitBuildVersionSimple, GitAssemblyInformationalVersion).
+          # setCommonVars: # optional
+          # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
+          # toolVersion: # optional
+      - name: Set MyGet Push
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push':
+          run: echo ::set-env name=PUBLISH_MYGET::true
+      - name: Echo Nuget Boolean
+        run: echo "Publish to MyGET? --> $PUBLISH_MYGET"
+      - name: Echo Version
+        run: echo "$NBGV_NuGetPackageVersion"
+    
+
+      
+      
+      
+
+
+
+
+
+
+
+
 # This is a basic workflow to help you get started with Actions
 
-name: Publish Nuget Package
+#name: Publish Nuget Package
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+#on:
+  #push:
+  #  branches: [ master ]
+ # pull_request:
+ #   branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
+#jobs:
   # This workflow contains a single job called "build"
-  build:
+#  build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
+ #   runs-on: ubuntu-latest
+#
     # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
+#    steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-      with: 
-        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-    - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v1.5.0
-    # with:
-      # SDK version to use. Examples: 2.2.104, 3.1, 3.1.x
-      # dotnet-version: # optional
-      # Optional package source for which to set up authentication. Will consult any existing NuGet.config in the root of the repo and provide a temporary NuGet.config using the NUGET_AUTH_TOKEN environment variable as a ClearTextPassword
-      # source-url: # optional
-      # Optional OWNER for using packages from GitHub Package Registry organizations/users other than the current repository's owner. Only used if a GPR URL is also provided in source-url
-      # owner: # optional
-      # Optional NuGet.config location, if your NuGet.config isn't located in the root of the repo.
-      # config-file: # optional
-      # Deprecated. Use dotnet-version instead. Will not be supported after October 1, 2019
-      # version: # optional
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    - name: Test
-      run: dotnet test
-    - name: Nerdbank.GitVersioning
-      id: nbgv
-      uses: dotnet/nbgv@v0.3.1
-      with:
-        # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
-        # path: # optional, default is .
-        # Defines ALL version variables as environment variables, with a "NBGV_" prefix.
-        setAllVars: true # optional
-        # Defines a few common version variables as environment variables, with a "Git" prefix (e.g. GitBuildVersion, GitBuildVersionSimple, GitAssemblyInformationalVersion).
-        # setCommonVars: # optional
-        # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
-        # toolVersion: # optional
-    - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
-    - name: Generate NuGet package
-      run:
-        cd ci_experiment
-        dotnet pack -c Release -o out /p:Version=$(steps.nbgv.outputs.SemVer2)
-    - name: Publish NuGet
-      run:
-        dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${secrets.NUGET_API_KEY} --skip-duplicate 
-#    - name: Publish NuGet
-#      uses: brandedoutcast/publish-nuget@v2.5.5
-#      with:
-        # Filepath of the project to be packaged, relative to root of repository
- #       PROJECT_FILE_PATH: ci_experiment/ci_experiment.csproj
-        # NuGet package id, used for version detection & defaults to project name
-        # PACKAGE_NAME: # optional
-        # Filepath with version info, relative to root of repository & defaults to PROJECT_FILE_PATH
-        # VERSION_FILE_PATH: # optional
-        # Regex pattern to extract version info in a capturing group
-        # VERSION_REGEX: # optional, default is ^\s*<Version>(.*)<\/Version>\s*$
-        # Useful with external providers like Nerdbank.GitVersioning, ignores VERSION_FILE_PATH & VERSION_REGEX
-  #      VERSION_STATIC: 1.0.1 #${{steps.nbgv.outputs.SemVer2}} # optional
-        # Flag to toggle git tagging, enabled by default
-        # TAG_COMMIT: # optional, default is true
-        # Format of the git tag, [*] gets replaced with actual version
-        # TAG_FORMAT: # optional, default is v*
-        # API key to authenticate with NuGet server
-   #     NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-        # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-        # NUGET_SOURCE: # optional, default is https://api.nuget.org
-        # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
-        # INCLUDE_SYMBOLS: # optional
-    # - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
+ #   - uses: actions/checkout@v2
+  #    with: 
+  #      fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+  #  - name: Setup .NET Core SDK
+  #    uses: actions/setup-dotnet@v1.5.0
+  #  - name: Install dependencies
+  #    run: dotnet restore
+  #  - name: Build (at solution level. Move directory if not root)
+  #    run: dotnet build --configuration Release --no-restore
+  #  - name: Test
+  #    run: dotnet test
+  #  - name: Nerdbank.GitVersioning
+  #    id: nbgv
+  #    uses: dotnet/nbgv@v0.3.1
+  #    with:
+  #      # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
+  #      # path: # optional, default is .
+  #      # Defines ALL version variables as environment variables, with a "NBGV_" prefix.
+  #      setAllVars: true # optional
+  #      # Defines a few common version variables as environment variables, with a "Git" prefix (e.g. GitBuildVersion, GitBuildVersionSimple, GitAssemblyInformationalVersion).
+  #      # setCommonVars: # optional
+  #      # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
+  #      # toolVersion: # optional
+  #  - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
+  #  - name: Change Directory
+  #    run: cd ci_experiment
+  #  - name: Generate NuGet package
+  #    run: dotnet pack -c Release -o . -p:PackageVersion=$NBGV_NuGetPackageVersion
+  #  - name: Publish NuGet
+  #    run:
+  #      dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
+# #   - name: Publish NuGet
+# #     uses: brandedoutcast/publish-nuget@v2.5.5
+# #     with:
+  #      # Filepath of the project to be packaged, relative to root of repository
+ ##       PROJECT_FILE_PATH: ci_experiment/ci_experiment.csproj
+  #      # NuGet package id, used for version detection & defaults to project name
+  #      # PACKAGE_NAME: # optional
+  #      # Filepath with version info, relative to root of repository & defaults to PROJECT_FILE_PATH
+  #      # VERSION_FILE_PATH: # optional
+  #      # Regex pattern to extract version info in a capturing group
+  #      # VERSION_REGEX: # optional, default is ^\s*<Version>(.*)<\/Version>\s*$
+  #      # Useful with external providers like Nerdbank.GitVersioning, ignores VERSION_FILE_PATH & VERSION_REGEX
+  ##      VERSION_STATIC: 1.0.1 #${{steps.nbgv.outputs.SemVer2}} # optional
+  #      # Flag to toggle git tagging, enabled by default
+  #      # TAG_COMMIT: # optional, default is true
+  #      # Format of the git tag, [*] gets replaced with actual version
+   #     # TAG_FORMAT: # optional, default is v*
+  #      # API key to authenticate with NuGet server
+  # #     NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+  #      # NuGet server uri hosting the packages, defaults to https://api.nuget.org
+  #      # NUGET_SOURCE: # optional, default is https://api.nuget.org
+  #      # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
+  #      # INCLUDE_SYMBOLS: # optional
+  #  # - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"##
