@@ -61,13 +61,13 @@ jobs:
           cd ci_experiment
           dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
       - name: Set current datetime as environment variable
-        run: echo "::set-env name=NOW::$(date +'%Y%m%d%H%M%S')"
+        run: echo "::set-env name=NOW::$(date +'%Y.%m.%d-%H%M%S')"
       - name: Publish MyGet
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           cd ci_experiment
           rm *.nupkg
-          dotnet pack -c Debug -o . -p:PackageVersion=$NOW
+          dotnet pack -c Debug -o . -p:PackageVersion=$NOW -p:PackageID="ci_experiment-dev"
           dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
       - name: Upload package as artifact
         uses: actions/upload-artifact@v2
