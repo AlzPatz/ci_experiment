@@ -52,7 +52,13 @@ jobs:
           # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
           # toolVersion: # optional
       - name: Echo values
-        run: echo "${{ steps.nb.outputs.SemVer2 }}"
+        run: |
+          echo "SemVer2: ${{ steps.nb.outputs.SemVer2 }}"
+          echo "Version: ${{ steps.nb.outputs.Version }}"
+          echo "MajorMinorVersion: ${{ steps.nb.outputs.MajorMinorVersion }}"
+          echo "SimpleVersion: ${{ steps.nb.outputs.SimpleVersion }}"
+          echo "SemVer1: ${{ steps.nb.outputs.SemVer1 }}"
+          echo "NugetPackageVersion: ${{ steps.nb.outputs.NugetPackageVersion }}"
               
         #OLD
 #  buildpackandpush:
