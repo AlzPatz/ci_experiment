@@ -59,6 +59,10 @@ jobs:
           echo "SimpleVersion: ${{ steps.nb.outputs.SimpleVersion }}"
           echo "SemVer1: ${{ steps.nb.outputs.SemVer1 }}"
           echo "NugetPackageVersion: ${{ steps.nb.outputs.NugetPackageVersion }}"
+      - name: Pack Te
+        run: |
+          cd ci_experiment
+          dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.Version }}" -p:PackageID="ci_experiment-dev" -o . 
               
         #OLD
 #  buildpackandpush:
