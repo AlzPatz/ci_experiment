@@ -6,12 +6,12 @@ namespace ci_experiment
     {
 		public static void Speak()
 		{
-			Console.WriteLine("Speaking Version - Should ACTUALLY NOW !!! only show on MYGET feed");
+			Console.WriteLine("Version - boring Should ACTUALLY NOW !!! only show on MYGET feed");
 		}
 
 		public static void SomethingElse()
 		{
-			Console.WriteLine("This does something else #4 I guess");
+			Console.WriteLine("This does something else #5 I guess");
 		}
     }
 }
