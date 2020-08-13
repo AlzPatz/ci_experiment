@@ -1,5 +1,52 @@
-# .NET Core Workflow:
-# [Add Description]
+# .NET Core Workflow - Alex Paterson:
+
+# Overview
+# ---------
+# A ci/cd approach that tests and publishes packages from the MASTER branch
+# User controlled Major.Minor.Patch version numbers set in version.json file
+# Publishes new official NUGET package on a change to the user defined version number in version.json
+# Publishes a development package to MyGet on any push to master (with modified package name and four component version number, fourth component auto generated)
+# A development package can be pushed to MyGet from any branch using string sequence in git commit message
+# All pushes and pulls upload a package file as an artifact of the github action
+# Versioning tool (nerdbank.gitversioning) only used by github action, is not (and should not) be present in project itself
+# Local builds do not stamp version file on assembly
+    
+# In slightly more detail...  
+#----------------------------
+# Job #1 "test" -> Checkout, restore, build and test on all major operating systems (windows, linux, osx)
+
+# Job #2 "packandpush"
+# Assumes "test" successful
+# Publishes Official Nuget feed RELEASE if MASTER push contains a NEW version number (three integar format 1.2.3) as defined by user in version.json
+# Publishes Development DEBUG Package to MyGet feed on ALL pushes to master (version number used four integer format 1.2.3.4)
+# Uploads Package as an artifact on all pushes and pulls
+# A Package is also uploaded to the MyGet development feed if the top commit comment for a PUSH on a non-master branch, contains a defined search string ($PUSH_PACK_NON_MASTER_STRING)
+
+# Version numbers are generated using nerdbank.gitversioning (NBGV)
+# NBGV is NOT included as a package in the projects themselves, it is only installed and used during the github action build
+# DO NOT INCLUDE NBGV AS A PACKAGE IN YOUR PROJECTS -  it will override the attempts to define the version numbers for packages later on
+# Version numbers and package names are provided as properties to the dotnet pack command (local builds will not have version numbers updated)
+# version.json (default in repo root) is used to define Major.Minor.Patch first three integers
+# The user therefore defines these first three integers and should update them when desired (will trigger Nuget feed publish)
+# On a pack from a MASTER pull the four integer NBGV release version number (Major.Minor.Patch.{BuildHeight}, such as 1.2.3.4) is used as package version number
+# For any non-Master push/pull or master pull, the SemVer2 NBGV version with included build metadata string is used as the version number, such as 1.2.3-g2321387
+
+# This method allows the usage of NBGV to generate unique version numbers, whilst also allowing the publishes of the same packages to different feeds
+# with differing names and versioning numbers, reducing difficulties in switching between consuming the package under nuget and myget
+# the artifacts can allow testing of any push or pull without requiring an upload to a feed (useful for critical pull requests)
+
+# Repo assumptions:
+# version.json present of format:
+# {
+#  "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
+#  "version": "1.2.3",    <!-- User defined. Update this version on push to MASTER to trigger new official nuget publish -->
+#  "publicReleaseRefSpec": [
+#    "^refs/heads/master$"
+#  ]
+# }
+# Contains one project that will be target of nuget packaging
+# Possible to build and test from defined code root (such as having a top level .sln file referencing seperate projects in sub-directories)
+
 name: .Net Core  
 on:
   push:
@@ -11,12 +58,16 @@ env:
   PUSH_PACK_NON_MASTER_STRING: "push-dev-pack"
   NUGET_SOURCE: "https://api.nuget.org/v3/index.json"
   MYGET_SOURCE: "https://www.myget.org/F/ci_experiment_dev/api/v3/index.json" 
+  # Stop wasting time caching packages
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  # Disable sending usage data to Microsoft
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest ] #, windows-latest, macos-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -71,4 +122,3 @@ jobs:
         with:
           name: ${{ env.PACKAGE_NAME }}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
           path: ${{ env.PROJECT_DIR }}*.nupkg
-      
