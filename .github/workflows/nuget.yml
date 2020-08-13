@@ -41,7 +41,7 @@ jobs:
         id: nb
         uses: dotnet/nbgv@v0.3.1
         with:
-          path: ./ci_experiment/
+          path: .
       - name: Echo values
         run: |
           echo "SemVer2: ${{ steps.nb.outputs.SemVer2 }}"
@@ -77,7 +77,7 @@ jobs:
       - name: Upload (latest) built package as action artifact
         uses: actions/upload-artifact@v2
         with:
-          name: co_experiment ${{ steps.nb.outputs.Version }} ${{ steps.nb.outputs.BuildMetadataFragment }}
+          name: ci_experiment${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
           path: ./ci_experiment/*.nupkg
         
           
