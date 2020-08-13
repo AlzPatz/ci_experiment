@@ -52,7 +52,8 @@ on:
   push:
   pull_request:
 env:
-  PROJECT_DIR: "./ci_experiment/"
+  TOPLEVEL_BUILD_DIR: "./src/"  
+  PACKAGE_PROJECT_DIR: "ci_experiment/"
   PACKAGE_NAME: "ci_experiment"
   DEV_PACKAGE_NAME: "ci_experiment-dev"
   PUSH_PACK_NON_MASTER_STRING: "push-dev-pack"
@@ -74,11 +75,17 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1.5.0
       - name: Restore
-        run: dotnet restore
+        run: |
+            cd $TOPLEVEL_BUILD_DIR
+            dotnet restore
       - name: Build
-        run: dotnet build -c Release --no-restore
+        run:  |
+            cd $TOPLEVEL_BUILD_DIR
+            dotnet build -c Release --no-restore
       - name: Test
-        run: dotnet test
+        run: |
+            cd $TOPLEVEL_BUILD_DIR
+            dotnet test
   packandpush:
     needs: test
     runs-on: ubuntu-latest
@@ -96,12 +103,14 @@ jobs:
       - name: If pushing to master, pack a RELEASE version with 1.2.3 format and upload to nuget.org
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
+          cd $TOPLEVEL_BUILD_DIR
           cd $PROJECT_DIR
           dotnet pack -c Release -p:Version="${{ steps.nb.outputs.SimpleVersion }}" -p:PackageID="${{ env.PACKAGE_NAME }}" -o . 
           dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
       - name: If pushing to master, pack a DEBUG version with 0.0.0.0 format and upload to myget under -dev name
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
+          cd $TOPLEVEL_BUILD_DIR  
           cd $PROJECT_DIR
           rm *.nupkg
           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.Version }}" -p:PackageID="${{ env.DEV_PACKAGE_NAME }}" -o .
@@ -109,6 +118,7 @@ jobs:
       - name: If pushing, but NOT master, and top git commit contains string $PUSH_PACK_NON_MASTER_STRING pack a DEBUG version using nerdbank generated metadata version under dev name and upload to myget under dev name
         if: github.ref != 'refs/heads/master' && contains(github.event.head_commit.message, 'push-dev-pack' && github.event_name == 'push')
         run: |
+          cd $TOPLEVEL_BUILD_DIR  
           cd $PROJECT_DIR
           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVer2 }}" -p:PackageID="${{ env.DEV_PACKAGE_NAME }}" -o .
           dotnet nuget push *.nupkg -s ${{ env.MYGET_SOURCE }} -k ${{secrets.MYGET_API_KEY}}
@@ -116,9 +126,11 @@ jobs:
       - name: If we are NOT pushing to master, or it's a pull request, pack a DEBUG version using nerdbank git metadata version under dev name (for artifact upload)
         if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
         run: |
+           cd $TOPLEVEL_BUILD_DIR  
+           cd $PROJECT_DIR
            dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVert2 }}" -p:PackageID="${{ env.DEV_PACKAGE_NAME }}" -o .
       - name: Upload (latest) built package as action artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.PACKAGE_NAME }}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
-          path: ${{ env.PROJECT_DIR }}*.nupkg
+          path: ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PROJECT_DIR }}*.nupkg
