@@ -76,15 +76,15 @@ jobs:
         uses: actions/setup-dotnet@v1.5.0
       - name: Restore
         run: |
-            cd $TOPLEVEL_BUILD_DIR
+            cd ${{ env.TOPLEVEL_BUILD_DIR }}
             dotnet restore
       - name: Build
         run:  |
-            cd $TOPLEVEL_BUILD_DIR
+            cd ${{ env.TOPLEVEL_BUILD_DIR }}
             dotnet build -c Release --no-restore
       - name: Test
         run: |
-            cd $TOPLEVEL_BUILD_DIR
+            cd ${{ env.TOPLEVEL_BUILD_DIR }}
             dotnet test
   packandpush:
     needs: test
