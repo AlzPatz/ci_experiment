@@ -50,6 +50,7 @@ jobs:
           echo "SimpleVersion: ${{ steps.nb.outputs.SimpleVersion }}"
           echo "SemVer1: ${{ steps.nb.outputs.SemVer1 }}"
           echo "NugetPackageVersion: ${{ steps.nb.outputs.NugetPackageVersion }}"
+          echo "${{ github.event.head_commit.message }}"
       - name: If pushing to master, pack a release version with 0.0.0 format and upload to nuget.org
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
@@ -67,14 +68,13 @@ jobs:
         if: github.ref != 'refs/heads/master' && contains(github.event.head_commit.message, 'push-dev-pack' && github.event_name == 'push')
         run: |
           cd ci_experiment
-          rm *.nupkg
           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVer2 }}" -p:PackageID="ci_experiment-dev" -o . 
           dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
+          rm *.nupkg
       - name: If we are NOT pushing to master, pack a version using nerdbank git tagged version under -dev name (for artifact upload)
         if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
         run: |
             cd ci_experiment
-            rm *.nupkg
             dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVer2 }}" -p:PackageID="ci_experiment-dev" -o . 
       - name: Upload (latest) built package as action artifact
         uses: actions/upload-artifact@v2
