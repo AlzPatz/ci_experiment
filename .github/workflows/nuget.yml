@@ -69,6 +69,6 @@ jobs:
       - name: Upload (latest) built package as action artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PACKAGE_NAME}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
+          name: ${{ env.PACKAGE_NAME }}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
           path: ${{ env.PROJECT_DIR }}*.nupkg
       
