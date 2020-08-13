@@ -1,17 +1,16 @@
 # .NET Core Workflow:
-# On every commit and pull request (any branch):
-#   - Build (on all platforms)
-#   - Test 
-#   - Create version number using Nerdbank.Gitversioning
-#   UPDATE THIS
-# 
+# [Add Description]
 name: .Net Core  
 on:
   push:
   pull_request:
-
 env:
   PROJECT_DIR: "./ci_experiment/"
+  PACKAGE_NAME: "ci_experiment"
+  DEV_PACKAGE_NAME: "ci_experiment-dev"
+  PUSH_PACK_NON_MASTER_STRING: "push-dev-pack"
+  NUGET_SOURCE: "https://api.nuget.org/v3/index.json"
+  MYGET_SOURCE: "https://www.myget.org/F/ci_experiment_dev/api/v3/index.json" 
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -41,192 +40,35 @@ jobs:
         id: nb
         uses: dotnet/nbgv@v0.3.1
         with:
-          path: .
-      - name: If pushing to master, pack a release version with 0.0.0 format and upload to nuget.org
+          # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.:  
+          path: . #version.json in root
+      - name: If pushing to master, pack a RELEASE version with 1.2.3 format and upload to nuget.org
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           cd $PROJECT_DIR
-          dotnet pack -c Release -p:Version="${{ steps.nb.outputs.SimpleVersion }}" -p:PackageID="ci_experiment" -o . 
-          dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-      - name: If pushing to master, pack a debug version with 0.0.0.0 format and upload to myget under -dev name
+          dotnet pack -c Release -p:Version="${{ steps.nb.outputs.SimpleVersion }}" -p:PackageID="${{ env.PACKAGE_NAME }}" -o . 
+          dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
+      - name: If pushing to master, pack a DEBUG version with 0.0.0.0 format and upload to myget under -dev name
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           cd $PROJECT_DIR
           rm *.nupkg
-          dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.Version }}" -p:PackageID="ci_experiment-dev" -o . 
-          dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
-      - name: If pushing and git commit contains string 'push-dev-pack' and branch is not master pack a version using nerdbank git tagged version under -dev name and upload to myget under -dev name
+          dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.Version }}" -p:PackageID="${{ env.DEV_PACKAGE_NAME }}" -o 
+          dotnet nuget push *.nupkg -s ${{ env.MYGET_SOURCE }} -k ${{secrets.MYGET_API_KEY}}
+      - name: If pushing, but NOT master, and top git commit contains string $PUSH_PACK_NON_MASTER_STRING pack a DEBUG version using nerdbank generated metadata version under dev name and upload to myget under dev name
         if: github.ref != 'refs/heads/master' && contains(github.event.head_commit.message, 'push-dev-pack' && github.event_name == 'push')
         run: |
           cd $PROJECT_DIR
+          dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVer2 }}" -p:PackageID="${{ env.DEV_PACKAGE_NAME }}" -o 
+          dotnet nuget push *.nupkg -s ${{ env.MYGET_SOURCE }} -k ${{secrets.MYGET_API_KEY}}
           rm *.nupkg
-          dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVer2 }}" -p:PackageID="ci_experiment-dev" -o . 
-          dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
-      - name: If we are NOT pushing to master, pack a version using nerdbank git tagged version under -dev name (for artifact upload)
+      - name: If we are NOT pushing to master, or it's a pull request, pack a DEBUG version using nerdbank git metadata version under dev name (for artifact upload)
         if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
         run: |
-           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVert2 }}" -p:PackageID="ci_experiment-dev" -o . 
+           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVert2 }}" -p:PackageID="${{ env.DEV_PACKAGE_NAME }}" -o 
       - name: Upload (latest) built package as action artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ci_experiment${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
+          name: ${{ env.PACKAGE_NAME}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
           path: ${{ env.PROJECT_DIR }}*.nupkg
-        
-          
-        #OLD
-#  buildpackandpush:
-#    needs: test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 0 # avoid shallow clone so nerdbank.gitversioning can do its work.
-#      - name: Setup .NET Core
-#        uses: actions/setup-dotnet@v1.5.0
-#      - name: Restore
-#        run: dotnet restore
-#      - name: Build and Pack Release if a master push
-#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-#        run: |
-##          cd ci_experiment
-#          dotnet build -c Release --no-restore
-#          dotnet pack -c Release -o . 
-#      - name: Build and Pack Debug if not a master push
-#        if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
-#        run: |
-#          cd cd_experiment
-#          dotnet build -c Debug --no-restore
-#          dotnet pack -c Debug -o . 
-#      - name: Publish NuGet 
-#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-#        run: |
-#          cd ci_experiment
-#          dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-#      - name: Set current datetime as environment variable
-#        run: echo "::set-env name=NOW::$(date +'%Y.%m.%d-%H%M%S')"
-#      - name: Publish MyGet
-#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-#        run: |
-#          cd ci_experiment
-#          rm *.nupkg
-#          dotnet pack -c Debug -p:PackageID="ci_experiment-dev" -o . 
-#          dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
-#      - name: Upload package as artifact
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: nupkg
-#          path: ./ci_experiment/*.nupkg
-#   END OF OLD
-
-
-
-#    #-p:PackageID="ci_experiment-dev"   -p:PackageVersion=$NOW 
-#    # - name: Run Nerdbank.GitVersioning
-     #   uses: dotnet/nbgv@v0.3.1
-     #   with:
-     #     # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
-     #     # path: # optional, default is .
-     #     # Defines ALL version variables as environment variables, with a "NBGV_" prefix.
-     #     setAllVars: true # optional
-     #     # Defines a few common version variables as environment variables, with a "Git" prefix (e.g. GitBuildVersion, GitBuildVersionSimple, GitAssemblyInformationalVersion).
-     #     # setCommonVars: # optional
-     #     # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
-     #     # toolVersion: # optional
-     # - name: Set MyGet Push
-     #   if: github.ref == 'refs/heads/master' && github.event_name == 'push':
-     #     run: echo ::set-env name=PUBLISH_MYGET::true
-     # - name: Echo Nuget Boolean
-     #   run: echo "Publish to MyGET? --> $PUBLISH_MYGET"
-     # - name: Echo Version
-     #   run: echo "$NBGV_NuGetPackageVersion"
-    
-
       
-      
-      
-
-
-
-
-
-
-
-
-# This is a basic workflow to help you get started with Actions
-
-#name: Publish Nuget Package
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
-#on:
-  #push:
-  #  branches: [ master ]
- # pull_request:
- #   branches: [ master ]
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-#jobs:
-  # This workflow contains a single job called "build"
-#  build:
-    # The type of runner that the job will run on
- #   runs-on: ubuntu-latest
-#
-    # Steps represent a sequence of tasks that will be executed as part of the job
-#    steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
- #   - uses: actions/checkout@v2
-  #    with: 
-  #      fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-  #  - name: Setup .NET Core SDK
-  #    uses: actions/setup-dotnet@v1.5.0
-  #  - name: Install dependencies
-  #    run: dotnet restore
-  #  - name: Build (at solution level. Move directory if not root)
-  #    run: dotnet build --configuration Release --no-restore
-  #  - name: Test
-  #    run: dotnet test
-  #  - name: Nerdbank.GitVersioning
-  #    id: nbgv
-  #    uses: dotnet/nbgv@v0.3.1
-  #    with:
-  #      # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.
-  #      # path: # optional, default is .
-  #      # Defines ALL version variables as environment variables, with a "NBGV_" prefix.
-  #      setAllVars: true # optional
-  #      # Defines a few common version variables as environment variables, with a "Git" prefix (e.g. GitBuildVersion, GitBuildVersionSimple, GitAssemblyInformationalVersion).
-  #      # setCommonVars: # optional
-  #      # The version of the nbgv dotnet CLI tool to install and use. If not specified, the default is the latest stable version.
-  #      # toolVersion: # optional
-  #  - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"
-  #  - name: Change Directory
-  #    run: cd ci_experiment
-  #  - name: Generate NuGet package
-  #    run: dotnet pack -c Release -o . -p:PackageVersion=$NBGV_NuGetPackageVersion
-  #  - name: Publish NuGet
-  #    run:
-  #      dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-# #   - name: Publish NuGet
-# #     uses: brandedoutcast/publish-nuget@v2.5.5
-# #     with:
-  #      # Filepath of the project to be packaged, relative to root of repository
- ##       PROJECT_FILE_PATH: ci_experiment/ci_experiment.csproj
-  #      # NuGet package id, used for version detection & defaults to project name
-  #      # PACKAGE_NAME: # optional
-  #      # Filepath with version info, relative to root of repository & defaults to PROJECT_FILE_PATH
-  #      # VERSION_FILE_PATH: # optional
-  #      # Regex pattern to extract version info in a capturing group
-  #      # VERSION_REGEX: # optional, default is ^\s*<Version>(.*)<\/Version>\s*$
-  #      # Useful with external providers like Nerdbank.GitVersioning, ignores VERSION_FILE_PATH & VERSION_REGEX
-  ##      VERSION_STATIC: 1.0.1 #${{steps.nbgv.outputs.SemVer2}} # optional
-  #      # Flag to toggle git tagging, enabled by default
-  #      # TAG_COMMIT: # optional, default is true
-  #      # Format of the git tag, [*] gets replaced with actual version
-   #     # TAG_FORMAT: # optional, default is v*
-  #      # API key to authenticate with NuGet server
-  # #     NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-  #      # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-  #      # NUGET_SOURCE: # optional, default is https://api.nuget.org
-  #      # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
-  #      # INCLUDE_SYMBOLS: # optional
-  #  # - run: echo "$NBGV_SemVer2 $NBGV_NuGetPackageVersion"##
