@@ -56,21 +56,28 @@ jobs:
           cd ci_experiment
           dotnet pack -c Release -p:Version="${{ steps.nb.outputs.SimpleVersion }}" -p:PackageID="ci_experiment" -o . 
           dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-      - name: If pushing to master (or another branch with string in git commit), pack a debug version with 0.0.0.0 format and upload to myget under -dev name
-        if: (github.ref == 'refs/heads/master' || (github.ref != 'refs/heads/master' && contains(github.event.head_commit.message, 'push_dev_pack')) && github.event_name == 'push')
+      - name: If pushing to master, pack a debug version with 0.0.0.0 format and upload to myget under -dev name
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           cd ci_experiment
           rm *.nupkg
           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.Version }}" -p:PackageID="ci_experiment-dev" -o . 
           dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
-      - name: If we are NOT pushing to master, pack a version using nerdbank git tagged version under -dev name 
+      - name: If pushing and git commit contains string 'push-dev-pack' and branch is not master pack a version using nerdbank git tagged version under -dev name and upload to myget under -dev name
+        if: github.ref != 'refs/heads/master' && contains(github.event.head_commit.message, 'push-dev-pack' && github.event_name == 'push')
+        run: |
+          cd ci_experiment
+          rm *.nupkg
+          dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVer2 }}" -p:PackageID="ci_experiment-dev" -o . 
+          dotnet nuget push *.nupkg -s https://www.myget.org/F/ci_experiment_dev/api/v3/index.json -k ${{secrets.MYGET_API_KEY}}
+      - name: If we are NOT pushing to master, pack a version using nerdbank git tagged version under -dev name (for artifact upload)
         if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
         run: |
            dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVert2 }}" -p:PackageID="ci_experiment-dev" -o . 
       - name: Upload (latest) built package as action artifact
         uses: actions/upload-artifact@v2
         with:
-          name: nupkg
+          name: co_experiment ${{ steps.nb.outputs.Version }} ${{ steps.nb.outputs.BuildMetadataFragment }}
           path: ./ci_experiment/*.nupkg
         
           
