@@ -57,7 +57,7 @@ env:
   PACKAGE_NAME: "ci_experiment" # Official Package Name
   DEV_PACKAGE_NAME: "ci_experiment-dev" # Development MyGet build package name
   PUSH_PACK_NON_MASTER_STRING: "push-dev-pack" # String used to signal a Development MyGet package publish for non Master branch
-  VERSION_DOT_JSON_DIR: "."
+  VERSION_DOT_JSON_DIR: "./src/"
   NUGET_SOURCE: "https://api.nuget.org/v3/index.json"
   MYGET_SOURCE: "https://www.myget.org/F/ci_experiment_dev/api/v3/index.json" 
   # Stop wasting time caching packages
@@ -102,12 +102,14 @@ jobs:
           # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.:  
           path: ${{ env.VERSION_DOT_JSON_DIR }}
       - name: If pushing to master, pack a RELEASE version with 1.2.3 format and upload to nuget.org
+        # If the 1.2.3 version exists already, the package will not be published. This is the mechanism that drives a new Official Nuget published on every user updated MAJOR.MINOR.PATCH version
+        # The 1.2.3.4 version number format which will be used for MyGet Master will be different per commit (thanks to nerdbank.gitversioning)
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
           dotnet pack -c Release -p:Version="${{ steps.nb.outputs.SimpleVersion }}" -p:PackageID="${{ env.PACKAGE_NAME }}" -o . 
           dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-      - name: If pushing to master, pack a DEBUG version with 0.0.0.0 format and upload to myget under -dev name
+      - name: If pushing to master, pack a DEBUG version with 1.2.3.4 format and upload to myget under the development name
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: |
           cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
