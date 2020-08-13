@@ -9,7 +9,8 @@
 # A development package can be pushed to MyGet from any branch using string sequence in git commit message
 # All pushes and pulls upload a package file as an artifact of the github action
 # Versioning tool (nerdbank.gitversioning) only used by github action, is not (and should not) be present in project itself
-# Local builds do not stamp version file on assembly
+# Therefore, local builds do not stamp version file on assembly 
+# (If required, should still be manually possible if <Version> is defined in the .csproj, but this has not been tested to ensure does not interfere with pack paramter override on github action workflow, should be fine_
     
 # In slightly more detail...  
 #----------------------------
