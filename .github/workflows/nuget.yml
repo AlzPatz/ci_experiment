@@ -18,9 +18,12 @@
 # Job #2 "packandpush"
 # Assumes "test" successful
 # Publishes Official Nuget feed RELEASE if MASTER push contains a NEW version number (three integar format 1.2.3) as defined by user in version.json
-# Publishes Development DEBUG Package to MyGet feed on ALL pushes to master (version number used four integer format 1.2.3.4)
+# Publishes Development DEBUG Package to MyGet feed on ALL pushes to master (version number used four integer format 1.2.3.4) - use development package name to differentiate from official nuget name
+# Uses the fact that Nuget.Org will (on skip duplicates) not allow a package with the same version (Major.Minor.Patch) to be uploaded if it exists already (hence official release when user changed Major.Minor.Patch first occurs),
+# and that uploads to MyGet will use 4 component version number meaning each commit does have a unique version number (MyGet publish will work each time as not duplicated version number)
 # Uploads Package as an artifact on all pushes and pulls
 # A Package is also uploaded to the MyGet development feed if the top commit comment for a PUSH on a non-master branch, contains a defined search string ($PUSH_PACK_NON_MASTER_STRING)
+# This pacakge uses Major.Minor.Patch + non-release NBGV metadata tag to generate unique version numbers
 
 # Version numbers are generated using nerdbank.gitversioning (NBGV)
 # NBGV is NOT included as a package in the projects themselves, it is only installed and used during the github action build
@@ -39,9 +42,9 @@
 # version.json present of format:
 # {
 #  "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
-#  "version": "1.2.3",    <!-- User defined. Update this version on push to MASTER to trigger new official nuget publish -->
+#  "version": "1.2.3",    <!-- User defined. Update this version on push to MASTER to trigger new official nuget publish. User Major.Minor.Patch format -->
 #  "publicReleaseRefSpec": [
-#    "^refs/heads/master$"
+#    "^refs/heads/master$" <!-- workflow assumes that nerdbank.gitversioning will create a release format version number for master, so ensure this is include as the only release branch tag -->
 #  ]
 # }
 # Contains one project that will be target of nuget packaging
@@ -52,12 +55,12 @@ on:
   push:
   pull_request:
 env:
-  TOPLEVEL_BUILD_DIR: "./src/" # Location of .sln or single .csproj
+  TOPLEVEL_BUILD_DIR: "./src/" # Location of .sln or single .csproj (where job "test" should restore, build and test from)
   PACKAGE_PROJECT_DIR: "ci_experiment/" # Location of .csproj to package below TOPLEVEL_BUILD_DIR
-  PACKAGE_NAME: "ci_experiment" # Official Package Name
+  PACKAGE_NAME: "ci_experiment" # Official Nuget.org Package Name
   DEV_PACKAGE_NAME: "ci_experiment-dev" # Development MyGet build package name
   PUSH_PACK_NON_MASTER_STRING: "push-dev-pack" # String used to signal a Development MyGet package publish for non Master branch
-  VERSION_DOT_JSON_DIR: "./src/"
+  VERSION_DOT_JSON_DIR: "./src/" # Location of user defined version.json (see format assumptions above)
   NUGET_SOURCE: "https://api.nuget.org/v3/index.json"
   MYGET_SOURCE: "https://www.myget.org/F/ci_experiment_dev/api/v3/index.json" 
   # Stop wasting time caching packages
