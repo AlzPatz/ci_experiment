@@ -121,7 +121,7 @@ jobs:
           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.Version }}" -p:PackageID="${{ env.DEV_PACKAGE_NAME }}" -o .
           dotnet nuget push *.nupkg -s ${{ env.MYGET_SOURCE }} -k ${{secrets.MYGET_API_KEY}}
       - name: If pushing, but NOT master, and top git commit contains string $PUSH_PACK_NON_MASTER_STRING pack a DEBUG version using nerdbank generated metadata version under dev name and upload to myget under dev name
-        if: contains(github.event.head_commit.message, ${{ env.PUSH_PACK_NON_MASTER_STRING }}) # github.ref != 'refs/heads/master' # (github.ref != 'refs/heads/master') && (contains(github.event.head_commit.message, ${{ env.PUSH_PACK_NON_MASTER_STRING }})) && (github.event_name == 'push')
+        if: (github.ref != 'refs/heads/master') && contains(github.event.head_commit.message, ${{ env.PUSH_PACK_NON_MASTER_STRING }}) # github.ref != 'refs/heads/master' # (github.ref != 'refs/heads/master') && (contains(github.event.head_commit.message, ${{ env.PUSH_PACK_NON_MASTER_STRING }})) && (github.event_name == 'push')
         run: |
           cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
           dotnet pack -c Debug -p:Version="${{ steps.nb.outputs.SemVer2 }}" -p:PackageID="${{ env.DEV_PACKAGE_NAME }}" -o .
