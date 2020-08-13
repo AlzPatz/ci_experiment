@@ -8,15 +8,7 @@
 		<Description>This is package simply tests github actions and automated package building</Description>
 		<RequireLicenseAcceptance>False</RequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
-		<RepositoryUrl>http://empty.com</RepositoryUrl>
+		<RepositoryUrl>https://empty.com</RepositoryUrl>
 	</PropertyGroup>
-<!--
-	<ItemGroup>
-	  <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.31">
-	    <PrivateAssets>all</PrivateAssets>
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
-	</ItemGroup>
--->
 	
 </Project>
