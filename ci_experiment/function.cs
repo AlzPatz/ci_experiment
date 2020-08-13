@@ -6,7 +6,7 @@ namespace ci_experiment
     {
 		public static void Speak()
 		{
-			Console.WriteLine("Version - boring Should ACTUALLY NOW !!! only show on MYGET feed");
+			Console.WriteLine(" - boring Should ACTUALLY NOW !!! only show on MYGET feed");
 		}
 
 		public static void SomethingElse()
