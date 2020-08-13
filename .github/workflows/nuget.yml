@@ -70,7 +70,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ci_experiment${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
-          path: ${PROJECT_DIR}*.nupkg
+          path: .*/*.nupkg
         
           
         #OLD
