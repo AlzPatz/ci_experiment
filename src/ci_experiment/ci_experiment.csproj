@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
     	<TargetFramework>netstandard2.0</TargetFramework>
-		<PackageId>yak2d</PackageId>
+		<PackageId>PackageName</PackageId>
 		<Version>0.0.0.0</Version>
 		<Authors>Alex Paterson</Authors>
 		<Description>This is package simply tests github actions and automated package building</Description>
