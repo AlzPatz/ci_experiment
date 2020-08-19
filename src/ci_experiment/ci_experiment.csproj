@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
     	<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageId>PackageName</PackageId>
@@ -9,6 +8,5 @@
 		<RequireLicenseAcceptance>False</RequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
 		<RepositoryUrl>https://empty.com</RepositoryUrl>
-	</PropertyGroup>
-	
+	</PropertyGroup>	
 </Project>
