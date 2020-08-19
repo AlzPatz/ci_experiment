@@ -4,7 +4,7 @@
 		<PackageId>PackageName</PackageId>
 		<Version>0.0.0.0</Version>
 		<Authors>Alex Paterson</Authors>
-		<Description>This is package simply tests github actions and automated package building</Description>
+		<Description>This is package simply tests github actions and automated package building!</Description>
 		<RequireLicenseAcceptance>False</RequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
 		<RepositoryUrl>https://empty.com</RepositoryUrl>
