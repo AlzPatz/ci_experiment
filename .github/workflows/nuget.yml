@@ -54,7 +54,11 @@
 name: .Net Core  
 on:
   push:
+      paths:
+          - 'src/**'
   pull_request:
+        paths:
+          - 'src/**'
 env:
   TOPLEVEL_BUILD_DIR: "./src/" # Location of .sln or single .csproj (where job "test" should restore, build and test from)
   PACKAGE_PROJECT_DIR: "ci_experiment/" # Location of .csproj to package below TOPLEVEL_BUILD_DIR
