@@ -117,6 +117,7 @@ jobs:
           cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
           sed -i 's/PackageName/${{ env.PACKAGE_NAME }}/g' *.csproj
           sed -i 's/0.0.0.0/${{ steps.nb.outputs.SimpleVersion }}/g' *.csproj
+          dotnet pack -c Release -o .
           dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
       - name: If pushing to master, pack a DEBUG version with 1.2.3.4 format and upload to myget under the development name
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
