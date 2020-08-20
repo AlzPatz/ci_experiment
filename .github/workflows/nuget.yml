@@ -107,6 +107,7 @@ jobs:
           uses: ./.github/actions/pushandpackproject/
           with:
               Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
+              Build-Configuration: 'Release'
               Package-Name-Suffix: ''
               Use-Name-Suffix: false
               Version-String: ${{ steps.nb.outputs.SimpleVersion }}
@@ -118,6 +119,7 @@ jobs:
           uses: ./.github/actions/pushandpackproject/
           with:
               Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
+              Build-Configuration: 'Debug'
               Package-Name-Suffix: '-dev'
               Use-Name-Suffix: true
               Version-String: ${{ steps.nb.outputs.Version }}
