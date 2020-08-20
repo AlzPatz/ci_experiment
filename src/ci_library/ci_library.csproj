@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+<PackageId>PackageName</PackageId>
+		<Version>0.0.0.0</Version>
+		<Authors>Alex Paterson</Authors>
+		<Description>This Package is a library for ci_experiment</Description>
+		<RequireLicenseAcceptance>False</RequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
+		<RepositoryUrl>https://empty.com</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>
