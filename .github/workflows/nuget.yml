@@ -129,7 +129,7 @@ jobs:
 #          sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj    
       - uses: actions/checkout@v1
       - name: Trying an action
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'   
+        # if: github.ref == 'refs/heads/master' && github.event_name == 'push'   
         id: an_action_id
         uses: ./.github/actions/pushandpackproject/
         with:
