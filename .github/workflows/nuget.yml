@@ -126,7 +126,8 @@ jobs:
         - name: List Packages Made
           run: |
               echo "Let's see the packages then..."
-              cd ./packages
+              cd .
+              cd packages
               ls
           
           
