@@ -57,7 +57,7 @@ for dir in *; do
             ls
             
             echo "NOW PACK"
-            dotnet pack -c "Release"
+            dotnet pack -c "${ BUILD_CONFIGURATION }" -o .
             dotnet nuget push *.nupkg -s $NUGET_SOURCE -k $NUGET_API_KEY --skip-duplicate 
             
             cp *.nupkg ${ROOT}/packages/
