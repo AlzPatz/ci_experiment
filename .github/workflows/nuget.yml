@@ -73,6 +73,7 @@ env:
   PUSH_PACK_NON_MASTER_STRING: "push-dev-pack" # String used to signal a Development MyGet package publish for non Master branch
   VERSION_DOT_JSON_DIR: "./src/" # Location of user defined version.json (see format assumptions above)
   PACKAGE_ID_STRING_IN_CSPROJ: "PackageName" # The text string in .csproj file <PackageId> that will be replaced
+  PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ: "LibraryName"
   VERSION_STRING_IN_CSPROJ: "0.0.0.0" # The text string in .csproj file <Version> that will be replaced
   NUGET_SOURCE: "https://api.nuget.org/v3/index.json"
   MYGET_SOURCE: "https://www.myget.org/F/ci_experiment_dev/api/v3/index.json" 
@@ -131,11 +132,11 @@ jobs:
           sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
           cd ~
           cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_LIBRARY_DIR }}
-          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/${{ env.PACKAGE_LIBRARY_NAME }}/g' *.csproj
+          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ }}/${{ env.PACKAGE_LIBRARY_NAME }}/g' *.csproj
           sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SimpleVersion }}/g' *.csproj
           dotnet pack -c Release -o .
           dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-          sed -i 's/${{ env.PACKAGE_LIBRARY_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
+          sed -i 's/${{ env.PACKAGE_LIBRARY_NAME }}/${{ env.PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ }}/g' *.csproj
           sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
       - name: If pushing to master, pack a DEBUG version with 1.2.3.4 format and upload to myget under the development name
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
