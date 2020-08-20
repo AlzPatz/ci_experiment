@@ -57,8 +57,10 @@ for dir in *; do
             dotnet pack -c "$BUILD_CONFIGURATION" -o .
             
             # Push
-            dotnet nuget push *.nupkg -s $NUGET_SOURCE -k $NUGET_API_KEY --skip-duplicate 
-            
+            if [ "$PUSH_PACKAGE" = true ]; then
+                dotnet nuget push *.nupkg -s $NUGET_SOURCE -k $NUGET_API_KEY --skip-duplicate 
+            fi
+
             # Copy packages to the storage directory (to upload as artefacts later)
             cp *.nupkg ${ROOT}/packages/
             
