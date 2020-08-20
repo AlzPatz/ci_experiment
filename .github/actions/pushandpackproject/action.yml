@@ -32,4 +32,5 @@ runs:
       run: ${{ github.action_path }}/packandpush.sh
       shell: bash
       end:
-        TEST_VARIABLE: ${{ inputs.Package-Name-Suffix }}
+        TEST_VARIABLE_0: ${{ inputs.Package-Name-Suffix }}
+        TEST_VARIABLE_1: ${{ inputs.Nuget-Api-Key }}
