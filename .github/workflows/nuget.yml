@@ -92,7 +92,7 @@ jobs:
         with:
           who-to-greet: 'Ryan  Adams'  
       - name: output stuff
-      - run: echo random-number ${{ steps.foo.outputs.random-number }} 
+      - run: echo random-number ${{ steps.an_action_id.outputs.random-number }} 
   test:
     runs-on: ${{ matrix.os }}
     strategy:
