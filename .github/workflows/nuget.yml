@@ -123,6 +123,11 @@ jobs:
               Version-String: ${{ steps.nb.outputs.Version }}
               Nuget-Source: ${{ env.MYGET_SOURCE }}
               Nuget-Api-Key: ${{secrets.MYGET_API_KEY}}
+        - name: List Packages Made
+          run: |
+              echo "Let's see the packages then..."
+              cd ./packages
+              ls
           
           
               
