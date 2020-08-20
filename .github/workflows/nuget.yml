@@ -163,18 +163,18 @@ jobs:
 #          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
 #          sed -i 's/${{ env.PACKAGE_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
 #          sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj    
-      - uses: actions/checkout@v1
-      - name: Trying an action
-        # if: github.ref == 'refs/heads/master' && github.event_name == 'push'   
-        id: an_action_id
-        uses: ./.github/actions/pushandpackproject/
-        with:
-          Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
-          Package-Name-Suffix: ''
-          Use-Name-Suffix: false
-          Version-String: ${{ steps.nb.outputs.SimpleVersion }}
-          Nuget-Source: ${{ env.NUGET_SOURCE }}
-          Nuget-Api-Key: ${{secrets.NUGET_API_KEY}}
+ #     - uses: actions/checkout@v1
+ #     - name: Trying an action
+ #       # if: github.ref == 'refs/heads/master' && github.event_name == 'push'   
+ #       id: an_action_id
+ #       uses: ./.github/actions/pushandpackproject/
+ #       with:
+ #         Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
+ #         Package-Name-Suffix: ''
+ #         Use-Name-Suffix: false
+ #         Version-String: ${{ steps.nb.outputs.SimpleVersion }}
+ #         Nuget-Source: ${{ env.NUGET_SOURCE }}
+ #         Nuget-Api-Key: ${{secrets.NUGET_API_KEY}}
 #  test:
 #    runs-on: ${{ matrix.os }}
 #    strategy:
