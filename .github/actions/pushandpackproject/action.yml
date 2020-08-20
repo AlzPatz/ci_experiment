@@ -18,5 +18,5 @@ runs:
       run: echo "::set-output name=random-id::$(echo $RANDOM)"
       shell: bash
     - name: Save a file down
-      run: echo "data" > ./file.text
+      run: echo "data" > ./file.txt
       shell: bash
