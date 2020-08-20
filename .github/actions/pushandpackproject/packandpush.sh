@@ -9,16 +9,14 @@ echo $NUGET_API_KEY
 echo "-----"
 echo "Current directory"
 pwd
+echo $PWD
 ls
-cd .
-echo "Have moved to ., where are we now"
-pwd
-ls
+ROOT = $PWD
 echo "Move to top level source"
 cd $TOP_LEVEL_SOURCE_DIR
 pwd
 ls
-cd .
+cd $ROOT
 echo "what's here"
 ls
 cd packages
