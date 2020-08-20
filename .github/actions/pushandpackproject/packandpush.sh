@@ -55,7 +55,7 @@ for dir in *; do
             dotnet pack -c $BUILD_CONFIGURATION -o .
             dotnet nuget push *.nupkg -s $NUGET_SOURCE -k $NUGET_API_KEY --skip-duplicate 
             
-            mv cp *.nupkg ${ROOT}/packages/
+            cp *.nupkg ${ROOT}/packages/
             
             cd ..
         fi
