@@ -39,7 +39,7 @@ runs:
       shell: bash
       env:
         TOP_LEVEL_SOURCE_DIR: ${{ inputs.Top-Level-Source-Directory }}
-        BUILD_CONFIGURATION: $$ {{ inputs.Build-Configuration }}
+        BUILD_CONFIGURATION: $ {{ inputs.Build-Configuration }}
         PACKAGE_NAME_SUFFIX: ${{ inputs.Package-Name-Suffix }}
         USE_NAME_SUFFIX: ${{ inputs.Use-Name-Suffix }}
         VERSION_STRING: ${{ inputs.Version-String }}
