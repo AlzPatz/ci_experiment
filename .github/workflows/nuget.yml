@@ -91,6 +91,8 @@ jobs:
         uses: ./.github/actions/pushandpackproject/
         with:
           who-to-greet: 'Ryan  Adams'  
+      - name: output stuff
+      - run: echo random-number ${{ steps.foo.outputs.random-number }} 
   test:
     runs-on: ${{ matrix.os }}
     strategy:
