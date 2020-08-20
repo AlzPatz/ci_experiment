@@ -89,9 +89,7 @@ jobs:
         id: an_action_id
         uses: ./github/actions/packandpushproject.yml
         with:
-          who-to-greet: 'Ryan  Adams'
-      - name: Writing action output to console
-      - run: echo random-number ${{ steps.an_action_id.outputs.random-number }}       
+          who-to-greet: 'Ryan  Adams'  
   test:
     runs-on: ${{ matrix.os }}
     strategy:
