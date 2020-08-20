@@ -21,7 +21,15 @@ for dir in *; do
     if [ -d "$dir" ]; then
         # Will not run if directory name has test within it
         if [[ ${dir} != *"test"* ]]; then
-            echo "$dir"
+            echo $dir
+            cd $dir
+            rm -f *.nupkg
+            # Loop through all .csproj files (should only be one per folder)
+            for proj in *.csproj; do
+                # Will not run if no files are found
+                [ -f "$proj" ] || break
+                echo $proj
+            done          
         fi
     fi
 done
