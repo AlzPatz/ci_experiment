@@ -27,7 +27,9 @@ for dir in *; do
             for proj in *.csproj; do
                 # Will not run if no files are found
                 [ -f "$proj" ] || break
-                echo $proj
+                echo ${proj%.*}
+                test="Yak2d.Api.csproj"
+                echo ${test%.*}
             done    
             cd ..
         fi
