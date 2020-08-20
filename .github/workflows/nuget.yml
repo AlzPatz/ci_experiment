@@ -61,30 +61,40 @@ on:
           - 'src/**'
 env:
   TOPLEVEL_BUILD_DIR: "./src/" # Location of .sln or single .csproj (where job "test" should restore, build and test from)
-  
-  PACKAGE_PROJECT_DIR: "ci_experiment/" # Location of .csproj to package below TOPLEVEL_BUILD_DIR
-  PACKAGE_NAME: "ci_experiment" # Official Nuget.org Package Name
-  DEV_PACKAGE_NAME: "ci_experiment-dev" # Development MyGet build package name
-      
-  PACKAGE_LIBRARY_DIR: "ci_library/" # Location of .csproj to package below TOPLEVEL_BUILD_DIR
-  PACKAGE_LIBRARY_NAME: "ci_library" # Official Nuget.org Package Name
-  DEV_PACKAGE_LIBRARY_NAME: "ci_library-dev" # Development MyGet build package name
-      
   PUSH_PACK_NON_MASTER_STRING: "push-dev-pack" # String used to signal a Development MyGet package publish for non Master branch
   VERSION_DOT_JSON_DIR: "./src/" # Location of user defined version.json (see format assumptions above)
-  PACKAGE_ID_STRING_IN_CSPROJ: "PackageName" # The text string in .csproj file <PackageId> that will be replaced
-  PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ: "LibraryName"
-  VERSION_STRING_IN_CSPROJ: "0.0.0.0" # The text string in .csproj file <Version> that will be replaced
   NUGET_SOURCE: "https://api.nuget.org/v3/index.json"
   MYGET_SOURCE: "https://www.myget.org/F/ci_experiment_dev/api/v3/index.json" 
-      
   ARTIFACT_NAME: "ci_exp"
   # Stop wasting time caching packages
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   # Disable sending usage data to Microsoft
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 jobs:
-  actiontest:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.5.0
+      - name: Restore
+        run: |
+            cd ${{ env.TOPLEVEL_BUILD_DIR }}
+            dotnet restore
+      - name: Build
+        run:  |
+            cd ${{ env.TOPLEVEL_BUILD_DIR }}
+            dotnet build -c Release --no-restore
+      - name: Test
+        run: |
+            cd ${{ env.TOPLEVEL_BUILD_DIR }}
+            dotnet test  
+  packandpush:
+    needs: test
     runs-on: ubuntu-latest
     steps:
         - name: Checkout
@@ -157,7 +167,7 @@ jobs:
               Push-Package: false
         - name: List Packages Made
           run: |
-              echo "Let's see the packages then..."
+              echo "Let's see the stored packages then..."
               cd .
               cd packages
               ls
@@ -166,172 +176,3 @@ jobs:
           with:
               name: ${{ env.ARTIFACT_NAME }}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }} 
               path: ./packages/*.nupkg
-          
-              
-              
-              
-        #      - name: Upload (latest) built package as action artifact
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: ${{ env.PACKAGE_NAME }}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
-#          path: ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}*.nupkg##     
-              
-              
-              
-              
-              
-              
- #     - name: Checkout
- #       uses: actions/checkout@v2
- #       with:
- #           fetch-depth: 0 # avoid shallow clone so nerdbank.gitversioning can do its work.
- #     - name: Run Nerdbank.GitVersioning
- #       id: nb
- #       uses: dotnet/nbgv@v0.3.1
- #       with:
- #           # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.:  
- #           path: ${{ env.VERSION_DOT_JSON_DIR }}
- #     - name: Create Nuget Directory
- #       run: mkdir ./packages
- #     - name: If pushing to master, pack a RELEASE version with 1.2.3 format and upload to nuget.org
-#        # If the 1.2.3 version exists already, the package will not be published. This is the mechanism that drives a new Official Nuget published on every user updated MAJOR.MINOR.PATCH version
-#        # The 1.2.3.4 version number format which will be used for MyGet Master will be different per commit (thanks to nerdbank.gitversioning)
-#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-#        run: |
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/${{ env.PACKAGE_NAME }}/g' *.csproj
-#          sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SimpleVersion }}/g' *.csproj
-#          cd ..
-#          cd ..
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_LIBRARY_DIR }}
-#          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ }}/${{ env.PACKAGE_LIBRARY_NAME }}/g' *.csproj
-#          sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SimpleVersion }}/g' *.csproj
-#          cd ..
-#          cd ..
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          dotnet pack -c Release -o .
-#          dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-#          cd ..
-#          cd ..
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_LIBRARY_DIR }}
-#          dotnet pack -c Release -o .
-#          dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-#          sed -i 's/${{ env.PACKAGE_LIBRARY_NAME }}/${{ env.PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ }}/g' *.csproj
-#          sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
-#          cd ..
-#          cd ..
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          sed -i 's/${{ env.PACKAGE_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
-#          sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj    
- #     - uses: actions/checkout@v1
- #     - name: Trying an action
- #       # if: github.ref == 'refs/heads/master' && github.event_name == 'push'   
- #       id: an_action_id
- #       uses: ./.github/actions/pushandpackproject/
- #       with:
- #         Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
- #         Package-Name-Suffix: ''
- #         Use-Name-Suffix: false
- #         Version-String: ${{ steps.nb.outputs.SimpleVersion }}
- #         Nuget-Source: ${{ env.NUGET_SOURCE }}
- #         Nuget-Api-Key: ${{secrets.NUGET_API_KEY}}
-#  test:
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [ ubuntu-latest, windows-latest, macos-latest ]
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#      - name: Setup .NET Core
-#        uses: actions/setup-dotnet@v1.5.0
-#      - name: Restore
-#        run: |
-#            cd ${{ env.TOPLEVEL_BUILD_DIR }}
-#            dotnet restore
-#      - name: Build
-#        run:  |
-#            cd ${{ env.TOPLEVEL_BUILD_DIR }}
-#            dotnet build -c Release --no-restore
-#      - name: Test
-#        run: |
-#            cd ${{ env.TOPLEVEL_BUILD_DIR }}
-#            dotnet test
-#  packandpush:
-#    needs: test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 0 # avoid shallow clone so nerdbank.gitversioning can do its work.
-#      - name: Run Nerdbank.GitVersioning
-#        id: nb
-#        uses: dotnet/nbgv@v0.3.1
-#        with:
-#          # The path to the directory for which the version should be determined. This should be at or below the directory containing the version.json file. Default is repo root directory.:  
-#          path: ${{ env.VERSION_DOT_JSON_DIR }}
-#      - name: If pushing to master, pack a RELEASE version with 1.2.3 format and upload to nuget.org
-#        # If the 1.2.3 version exists already, the package will not be published. This is the mechanism that drives a new Official Nuget published on every user updated MAJOR.MINOR.PATCH version
-#        # The 1.2.3.4 version number format which will be used for MyGet Master will be different per commit (thanks to nerdbank.gitversioning)
-#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-#        run: |
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/${{ env.PACKAGE_NAME }}/g' *.csproj
-#          sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SimpleVersion }}/g' *.csproj
-#          cd ..
-#          cd ..
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_LIBRARY_DIR }}
-#          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ }}/${{ env.PACKAGE_LIBRARY_NAME }}/g' *.csproj
-#          sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SimpleVersion }}/g' *.csproj
-#          cd ..
-#          cd ..
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          dotnet pack -c Release -o .
-#          dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-#          cd ..
-#          cd ..
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_LIBRARY_DIR }}
-#          dotnet pack -c Release -o .
-#          dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
-#          sed -i 's/${{ env.PACKAGE_LIBRARY_NAME }}/${{ env.PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ }}/g' *.csproj
-#          sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
-#          cd ..
-#          cd ..
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          sed -i 's/${{ env.PACKAGE_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
-#          sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
-#      - name: If pushing to master, pack a DEBUG version with 1.2.3.4 format and upload to myget under the development name
-#        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-#        run: |
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          rm *.nupkg
-#          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/${{ env.DEV_PACKAGE_NAME }}/g' *.csproj
-#          sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.Version }}/g' *.csproj
-#          dotnet pack -c Debug -o .
-#          dotnet nuget push *.nupkg -s ${{ env.MYGET_SOURCE }} -k ${{secrets.MYGET_API_KEY}}
-#          sed -i 's/${{ env.DEV_PACKAGE_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
-#          sed -i 's/${{ steps.nb.outputs.Version }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
-#      - name: If pushing, but NOT master, and top git commit contains string $PUSH_PACK_NON_MASTER_STRING pack a DEBUG version using nerdbank generated metadata version under dev name and upload to myget under dev name
-#        if: github.ref != 'refs/heads/master' && contains(github.event.head_commit.message, env.PUSH_PACK_NON_MASTER_STRING) && github.event_name == 'push'
-#        run: |
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/${{ env.DEV_PACKAGE_NAME }}/g' *.csproj
-#          sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SemVer2 }}/g' *.csproj
-#          dotnet pack -c Debug -o .
-#          dotnet nuget push *.nupkg -s ${{ env.MYGET_SOURCE }} -k ${{secrets.MYGET_API_KEY}}
-#          rm *.nupkg
-#          sed -i 's/${{ env.DEV_PACKAGE_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
-#          sed -i 's/${{ steps.nb.outputs.SemVer2 }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
-#      - name: If we are NOT pushing to master, or it's a pull request, pack a DEBUG version using nerdbank git metadata version under dev name (for artifact upload)
-#        if: github.ref != 'refs/heads/master' || github.event_name == 'pull'
-#        run: |
-#          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}
-#          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/${{ env.DEV_PACKAGE_NAME }}/g' *.csproj
-#          sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SemVer2 }}/g' *.csproj          
-#          dotnet pack -c Debug -o .
-#      - name: Upload (latest) built package as action artifact
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: ${{ env.PACKAGE_NAME }}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
-#          path: ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}*.nupkg##
