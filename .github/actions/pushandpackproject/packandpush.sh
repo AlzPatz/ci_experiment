@@ -11,6 +11,7 @@ echo "second"
 rm -f *
 
 # Go to the directory that contains the project subfolder directories
+cd $ROOT
 cd $TOP_LEVEL_SOURCE_DIR
 
 # Loop through each subdirectory (each should hold a project to pack and push)
