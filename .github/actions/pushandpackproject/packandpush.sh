@@ -51,15 +51,8 @@ for dir in *; do
         # Will not run if directory name has test within it
         if [[ ${dir} != *"test"* ]] && [[ ${dir} != *"Test"* ]]; then
             cd $dir
-            
-            echo "LIST"
-            
-            ls
-            
-            echo "NOW PACK"
-            echo $BUILD_CONFIGURATION
-            dotnet pack -o .
-            #dotnet pack -c "$BUILD_CONFIGURATION" -o .
+
+            dotnet pack -c "$BUILD_CONFIGURATION" -o .
             dotnet nuget push *.nupkg -s $NUGET_SOURCE -k $NUGET_API_KEY --skip-duplicate 
             
             cp *.nupkg ${ROOT}/packages/
