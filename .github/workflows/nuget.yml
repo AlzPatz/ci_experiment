@@ -77,6 +77,8 @@ env:
   VERSION_STRING_IN_CSPROJ: "0.0.0.0" # The text string in .csproj file <Version> that will be replaced
   NUGET_SOURCE: "https://api.nuget.org/v3/index.json"
   MYGET_SOURCE: "https://www.myget.org/F/ci_experiment_dev/api/v3/index.json" 
+      
+  ARTIFACT_NAME: "ci_exp"
   # Stop wasting time caching packages
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   # Disable sending usage data to Microsoft
@@ -159,12 +161,20 @@ jobs:
               cd .
               cd packages
               ls
+        - name: Upload (latest) built package as action artifact
+          uses: actions/upload-artifact@v2
+          with:
+              name: ${{ env.ARTIFACT_NAME }}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }} 
+              path: ./packages/*.nupkg
           
-          
               
               
               
-              
+        #      - name: Upload (latest) built package as action artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: ${{ env.PACKAGE_NAME }}${{ steps.nb.outputs.Version }}${{ steps.nb.outputs.BuildMetadataFragment }}
+#          path: ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_PROJECT_DIR }}*.nupkg##     
               
               
               
