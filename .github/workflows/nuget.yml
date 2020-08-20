@@ -94,13 +94,13 @@ jobs:
           uses: dotnet/nbgv@v0.3.1
           with:
               path: ${{ env.VERSION_DOT_JSON_DIR }}
+        - name: Checkout local actions
+          uses: actions/checkout@v1
         - name: Create Nuget Directory
           run: |
             cd .
             mkdir packages
             ls
-        - name: Checkout local actions
-          uses: actions/checkout@v1
         - name: If pushing to master, pack a RELEASE version with 1.2.3 format and upload to nuget.org
           if: github.ref == 'refs/heads/master' && github.event_name == 'push'
           id: push_to_nuget
