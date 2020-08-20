@@ -11,8 +11,6 @@ rm -f *
 cd $ROOT
 cd $TOP_LEVEL_SOURCE_DIR
 
-ls
-
 # Loop through each subdirectory (each should hold a project to pack and push)
 # Remove old .npkg files and set <ProjectId> and <Version> in .csproj
 for dir in *; do
@@ -33,7 +31,13 @@ for dir in *; do
                 if [ "$USE_NAME_SUFFIX" = true ]; then
                     PROJECT_NAME="${PROJECT_NAME}${PACKAGE_NAME_SUFFIX}"
                 fi
-                echo $PROJECT_NAME
+                #echo $PROJECT_NAME
+                
+                #Replace Project name in .csproj with generated name
+                sed -i 's/<PackageId>.*</PackageId>/<PackageId>${ PROJECT_NAME }</PackageId>/g' $proj
+                
+                echo "RESULT"
+                cat $proj
             done    
             cd ..
         fi
