@@ -20,7 +20,7 @@ for dir in *; do
     # Will not run if no directories are available
     if [ -d "$dir" ]; then
         # Will not run if directory name has test within it
-        if [[ ${dir} !+ *"test"* ]]; then
+        if [[ ${dir} != *"test"* ]]; then
             echo "$dir"
         fi
     fi
