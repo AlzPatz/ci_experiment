@@ -34,5 +34,9 @@ runs:
         ${{ github.action_path }}packandpush.sh
       shell: bash
       env:
-        TEST_VARIABLE_0: ${{ inputs.Package-Name-Suffix }}
-        TEST_VARIABLE_1: ${{ inputs.Nuget-Api-Key }}
+        TOP_LEVEL_SOURCE_DIR: ${{ inputs.Top-Level-Source-Directory }}
+        PACKAGE_NAME_SUFFIX: ${{ inputs.Package-Name-Suffix }}
+        USE_NAME_SUFFIX: ${{ inputs.Use-Name-Suffix }}
+        VERSION_STRING: ${{ inputs.Version-String }}
+        NUGET_SOURCE: ${{ inputs.Nuget-Source }}
+        NUGET_API_KEY: ${{ inputs.Nuget-Api-Key }}
