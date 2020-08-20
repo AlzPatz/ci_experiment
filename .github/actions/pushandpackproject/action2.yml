@@ -1,0 +1,3 @@
+name: Pack and Push Action
+description: Pack and Push a name, version and nuget source configuration
+inputs:
