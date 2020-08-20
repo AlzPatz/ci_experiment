@@ -27,9 +27,13 @@ for dir in *; do
             for proj in *.csproj; do
                 # Will not run if no files are found
                 [ -f "$proj" ] || break
-                echo ${proj%.*}
-                test="Yak2d.Api.csproj"
-                echo ${test%.*}
+                # We take the project filename before the final .
+                PROJECT_NAME=${proj%.*}
+                # Add suffix if desired
+                if [ $USE_NAME_SUFFIX = true]; then
+                    PROJECT_NAME="${PROJECT_NAME}${PACKAGE_NAME_SUFFIX}"
+                fi
+                echo $PROJECT_NAME
             done    
             cd ..
         fi
