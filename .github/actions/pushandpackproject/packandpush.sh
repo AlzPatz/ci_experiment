@@ -4,7 +4,10 @@
 ROOT=$PWD
 
 # Delete any existing packages stored in the output folder 
+echo "first"
+ls
 cd packages
+echo "second"
 rm -f *
 
 # Go to the directory that contains the project subfolder directories
