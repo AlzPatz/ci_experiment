@@ -130,6 +130,8 @@ jobs:
           dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
           sed -i 's/${{ env.PACKAGE_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
           sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
+          cd ..
+          cd ..
           cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_LIBRARY_DIR }}
           sed -i 's/${{ env.PACKAGE_ID_STRING_IN_LIBRARY_CSPROJ }}/${{ env.PACKAGE_LIBRARY_NAME }}/g' *.csproj
           sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SimpleVersion }}/g' *.csproj
