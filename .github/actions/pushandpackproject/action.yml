@@ -29,7 +29,9 @@ runs:
   using: "composite"
   steps:
     - name: Run pack and push script for requested configuration
-      run: sudo ${{ github.action_path }}packandpush.sh
+      run: |
+        chmod +x ${{ github.action_path }}packandpush.sh
+        ${{ github.action_path }}packandpush.sh
       shell: bash
       env:
         TEST_VARIABLE_0: ${{ inputs.Package-Name-Suffix }}
