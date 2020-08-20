@@ -5,6 +5,10 @@ inputs:
     description: 'Directory within which all desired project sub-directories are contained'
     requried: true
     default: './src/'
+  Build-Configuration:
+    description: 'Build Target'
+    required: true
+    default: 'DEBUG'
   Package-Name-Suffix:
     description: 'Nuget package name suffix to add to each project'
     required: true
@@ -35,8 +39,10 @@ runs:
       shell: bash
       env:
         TOP_LEVEL_SOURCE_DIR: ${{ inputs.Top-Level-Source-Directory }}
+        BUILD_CONFIGURATION: $$ {{ inputs.Build-Configuration }}
         PACKAGE_NAME_SUFFIX: ${{ inputs.Package-Name-Suffix }}
         USE_NAME_SUFFIX: ${{ inputs.Use-Name-Suffix }}
         VERSION_STRING: ${{ inputs.Version-String }}
         NUGET_SOURCE: ${{ inputs.Nuget-Source }}
         NUGET_API_KEY: ${{ inputs.Nuget-Api-Key }}
+      
