@@ -85,10 +85,12 @@ jobs:
   actiontest:
     runs-on: ubuntu-latest
     steps:
-      - id: an_action_id
-      - uses: ./gitbug/actions/packpushproject.yml
+      - name: Trying an action   
+        id: an_action_id
+        uses: ./gitbug/actions/packpushproject.yml
         with:
           who-to-greet: 'Ryan  Adams'
+      - name: Writing action output to console
       - run: echo random-number ${{ steps.an_action_id.outputs.random-number }}       
   test:
     runs-on: ${{ matrix.os }}
