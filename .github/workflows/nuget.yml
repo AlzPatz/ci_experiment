@@ -61,9 +61,15 @@ on:
           - 'src/**'
 env:
   TOPLEVEL_BUILD_DIR: "./src/" # Location of .sln or single .csproj (where job "test" should restore, build and test from)
+  
   PACKAGE_PROJECT_DIR: "ci_experiment/" # Location of .csproj to package below TOPLEVEL_BUILD_DIR
   PACKAGE_NAME: "ci_experiment" # Official Nuget.org Package Name
   DEV_PACKAGE_NAME: "ci_experiment-dev" # Development MyGet build package name
+      
+  PACKAGE_LIBRARY_DIR: "ci_library/" # Location of .csproj to package below TOPLEVEL_BUILD_DIR
+  PACKAGE_LIBRARY_NAME: "ci_library" # Official Nuget.org Package Name
+  DEV_PACKAGE_LIBRARY_NAME: "ci_library-dev" # Development MyGet build package name
+      
   PUSH_PACK_NON_MASTER_STRING: "push-dev-pack" # String used to signal a Development MyGet package publish for non Master branch
   VERSION_DOT_JSON_DIR: "./src/" # Location of user defined version.json (see format assumptions above)
   PACKAGE_ID_STRING_IN_CSPROJ: "PackageName" # The text string in .csproj file <PackageId> that will be replaced
@@ -122,6 +128,14 @@ jobs:
           dotnet pack -c Release -o .
           dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
           sed -i 's/${{ env.PACKAGE_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
+          sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
+          cd ~
+          cd ${{ env.TOPLEVEL_BUILD_DIR }}${{ env.PACKAGE_LIBRARY_DIR }}
+          sed -i 's/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/${{ env.PACKAGE_LIBRARY_NAME }}/g' *.csproj
+          sed -i 's/${{ env.VERSION_STRING_IN_CSPROJ }}/${{ steps.nb.outputs.SimpleVersion }}/g' *.csproj
+          dotnet pack -c Release -o .
+          dotnet nuget push *.nupkg -s ${{ env.NUGET_SOURCE }} -k ${{secrets.NUGET_API_KEY}} --skip-duplicate 
+          sed -i 's/${{ env.PACKAGE_LIBRARY_NAME }}/${{ env.PACKAGE_ID_STRING_IN_CSPROJ }}/g' *.csproj
           sed -i 's/${{ steps.nb.outputs.SimpleVersion }}/${{ env.VERSION_STRING_IN_CSPROJ }}/g' *.csproj
       - name: If pushing to master, pack a DEBUG version with 1.2.3.4 format and upload to myget under the development name
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
