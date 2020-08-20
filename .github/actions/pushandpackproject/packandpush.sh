@@ -34,7 +34,10 @@ for dir in *; do
                 #echo $PROJECT_NAME
                 
                 #Replace Project name in .csproj with generated name
-                sed -i 's/<PackageId>.*</PackageId>/<PackageId>${ PROJECT_NAME }</PackageId>/g' $proj
+                sed -i "s/<PackageId>.*</PackageId>/<PackageId>${ PROJECT_NAME }</PackageId>/g" $proj
+                
+                #Replace Version string in .csproj with generated name
+                sed -i "s/<Version>.*</Version>/<Version>${ PROJECT_NAME }</Version>/g" $proj
                 
                 echo "RESULT"
                 cat $proj
