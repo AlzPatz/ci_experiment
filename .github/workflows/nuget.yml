@@ -90,7 +90,9 @@ jobs:
         id: an_action_id
         uses: ./.github/actions/pushandpackproject/
         with:
-          who-to-greet: 'Ryan  Adams'  
+          who-to-greet: 'Ryan  Adams' 
+      - name: access the file
+        run: cat ./file.txt 
   test:
     runs-on: ${{ matrix.os }}
     strategy:
