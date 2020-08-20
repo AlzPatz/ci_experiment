@@ -4,15 +4,14 @@
 ROOT=$PWD
 
 # Delete any existing packages stored in the output folder 
-echo "first"
-ls
 cd packages
-echo "second"
 rm -f *
 
 # Go to the directory that contains the project subfolder directories
 cd $ROOT
 cd $TOP_LEVEL_SOURCE_DIR
+
+ls
 
 # Loop through each subdirectory (each should hold a project to pack and push)
 # Remove old .npkg files and set <ProjectId> and <Version> in .csproj
