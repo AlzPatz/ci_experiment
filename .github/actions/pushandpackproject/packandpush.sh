@@ -15,10 +15,14 @@ cd $ROOT
 cd $TOP_LEVEL_SOURCE_DIR
 
 # Loop through each subdirectory (each should hold a project to pack and push)
+# Remove old .npkg files and set <ProjectId> and <Version> in .csproj
 for dir in *; do
+    # Will not run if no directories are available
     if [ -d "$dir" ]; then
-        # Will not run if no directories are available
-        echo "$dir"
+        # Will not run if directory name has test within it
+        if [[ ${dir} !+ *"test"* ]]; then
+            echo "$dir"
+        fi
     fi
 done
 
