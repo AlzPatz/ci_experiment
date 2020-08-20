@@ -83,13 +83,13 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 jobs:
   actiontest:
-        runs-on: ubuntu-latest
-        steps:
-            - id: an_action_id
-            - uses: ./gitbug/actions/packpushproject.yml
-              with:
-                  who-to-greet: 'Ryan  Adams'
-            - run: echo random-number ${{ steps.an_action_id.outputs.random-number }}       
+    runs-on: ubuntu-latest
+    steps:
+      - id: an_action_id
+      - uses: ./gitbug/actions/packpushproject.yml
+        with:
+          who-to-greet: 'Ryan  Adams'
+      - run: echo random-number ${{ steps.an_action_id.outputs.random-number }}       
   test:
     runs-on: ${{ matrix.os }}
     strategy:
