@@ -37,7 +37,7 @@ for dir in *; do
                 sed -i "s/<PackageId>.*<\/PackageId>/<PackageId>$PROJECT_NAME<\/PackageId>/g" $proj
                 
                 #Replace Version string in .csproj with generated name
-                sed -i "s/<Version>.*<\/Version>/<Version>$PROJECT_NAME<\/Version>/g" $proj
+                sed -i "s/<Version>.*<\/Version>/<Version>$VERSION_STRING<\/Version>/g" $proj
                 
                 echo "RESULT"
                 cat $proj
