@@ -87,7 +87,7 @@ jobs:
     steps:
       - name: Trying an action   
         id: an_action_id
-        uses: ./.github/actions/packandpushproject.yml
+        uses: ./.github/actions/packandpushproject/
         with:
           who-to-greet: 'Ryan  Adams'  
   test:
