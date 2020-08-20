@@ -112,6 +112,17 @@ jobs:
               Version-String: ${{ steps.nb.outputs.SimpleVersion }}
               Nuget-Source: ${{ env.NUGET_SOURCE }}
               Nuget-Api-Key: ${{secrets.NUGET_API_KEY}}
+        - name: If pushing to master, pack a DEBUG version with 1.2.3.4 format and upload to myget under the development name
+          if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+          id: push_to_myget
+          uses: ./.github/actions/pushandpackproject/
+          with:
+              Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
+              Package-Name-Suffix: '-dev'
+              Use-Name-Suffix: true
+              Version-String: ${{ steps.nb.outputs.Version }}
+              Nuget-Source: ${{ env.MYGET_SOURCE }}
+              Nuget-Api-Key: ${{secrets.MYGET_API_KEY}}
           
           
               
