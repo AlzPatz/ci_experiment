@@ -18,7 +18,7 @@ for dir in *; do
     if [ -d "$dir" ]; then
         # Will not run if directory name has test within it
         if [[ ${dir} != *"test"* ]] && [[ ${dir} != *"Test"* ]]; then
-            echo $dir
+            #echo $dir
             cd $dir
             rm -f *.nupkg
             # Loop through all .csproj files (should only be one per folder)
@@ -50,7 +50,9 @@ for dir in *; do
     if [ -d "$dir" ]; then
         # Will not run if directory name has test within it
         if [[ ${dir} != *"test"* ]] && [[ ${dir} != *"Test"* ]]; then
+            cd $dir
             echo "PACK"
+            ls
         fi
     fi
 done
