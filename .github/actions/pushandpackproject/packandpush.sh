@@ -17,7 +17,7 @@ for dir in *; do
     # Will not run if no directories are available
     if [ -d "$dir" ]; then
         # Will not run if directory name has test within it
-        if [[ ${dir} != *"test"* ]]; then
+        if [[ ${dir} != *"test"* ]] && [[ ${dir} != *"Test"* ]]; then
             echo $dir
             cd $dir
             rm -f *.nupkg
@@ -38,11 +38,19 @@ for dir in *; do
                 
                 #Replace Version string in .csproj with generated name
                 sed -i "s/<Version>.*<\/Version>/<Version>$VERSION_STRING<\/Version>/g" $proj
-                
-                echo "RESULT"
-                cat $proj
             done    
             cd ..
+        fi
+    fi
+done
+
+# Now all projects have the correct project names and versions, we can loop through and pack and push, and then store the packages in the storage directory
+for dir in *; do
+    # Will not run if no directories are available
+    if [ -d "$dir" ]; then
+        # Will not run if directory name has test within it
+        if [[ ${dir} != *"test"* ]] && [[ ${dir} != *"Test"* ]]; then
+            echo "PACK"
         fi
     fi
 done
