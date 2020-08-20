@@ -61,7 +61,8 @@ on:
           - 'src/**'
 env:
   TOPLEVEL_BUILD_DIR: "./src/" # Location of .sln or single .csproj (where job "test" should restore, build and test from)
-  PUSH_PACK_NON_MASTER_STRING: "push-dev-pack" # String used to signal a Development MyGet package publish for non Master branch
+  PUSH_PACK_NON_MASTER_STRING: "push-dev-pack" # String used to signal a Development MyGet package publish for non Master branch 
+  DEV_PACKAGE_NAME_SUFFIX: "-dev"         
   VERSION_DOT_JSON_DIR: "./src/" # Location of user defined version.json (see format assumptions above)
   NUGET_SOURCE: "https://api.nuget.org/v3/index.json"
   MYGET_SOURCE: "https://www.myget.org/F/ci_experiment_dev/api/v3/index.json" 
@@ -133,7 +134,7 @@ jobs:
           with:
               Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
               Build-Configuration: 'Debug'
-              Package-Name-Suffix: '-dev'
+              Package-Name-Suffix: ${{ env.DEV_PACKAGE_NAME_SUFFIX }}
               Use-Name-Suffix: true
               Version-String: ${{ steps.nb.outputs.Version }}
               Nuget-Source: ${{ env.MYGET_SOURCE }}
@@ -146,7 +147,7 @@ jobs:
           with:
               Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
               Build-Configuration: 'Debug'
-              Package-Name-Suffix: '-dev'
+              Package-Name-Suffix: ${{ env.DEV_PACKAGE_NAME_SUFFIX }}
               Use-Name-Suffix: true
               Version-String: ${{ steps.nb.outputs.SemVer2 }}
               Nuget-Source: ${{ env.MYGET_SOURCE }}
@@ -159,18 +160,12 @@ jobs:
           with:
               Top-Level-Source-Directory: ${{ env.TOPLEVEL_BUILD_DIR }}
               Build-Configuration: 'Debug'
-              Package-Name-Suffix: '-dev'
+              Package-Name-Suffix: ${{ env.DEV_PACKAGE_NAME_SUFFIX }}
               Use-Name-Suffix: true
               Version-String: ${{ steps.nb.outputs.SemVer2 }}
               Nuget-Source: ''
               Nuget-Api-Key: ''
               Push-Package: false
-        - name: List Packages Made
-          run: |
-              echo "Let's see the stored packages then..."
-              cd .
-              cd packages
-              ls
         - name: Upload (latest) built package as action artifact
           uses: actions/upload-artifact@v2
           with:
