@@ -18,3 +18,6 @@ echo "Move to top level source"
 cd $TOP_LEVEL_SOURCE_DIR
 pwd
 ls
+cd ./packages
+touch ${VERSION_STRING}.txt
+ls
