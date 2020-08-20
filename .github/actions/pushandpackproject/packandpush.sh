@@ -11,7 +11,7 @@ echo "Current directory"
 pwd
 echo $PWD
 ls
-ROOT = $PWD
+ROOT=$PWD
 echo "Move to top level source"
 cd $TOP_LEVEL_SOURCE_DIR
 pwd
