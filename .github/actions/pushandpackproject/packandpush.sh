@@ -3,7 +3,7 @@
 # Store top level directory, as . does not work as it does in the github composite action
 ROOT=$PWD
 
-# Delete any existing packages stored in the output folder 
+# Delete any existing packages stored in the output folder (when this action is used multiple times we just use the last set of packages)
 cd packages
 rm -f *
 
@@ -34,10 +34,10 @@ for dir in *; do
                 #echo $PROJECT_NAME
                 
                 #Replace Project name in .csproj with generated name
-                sed -i "s/<PackageId>.*</PackageId>/<PackageId>$PROJECT_NAME</PackageId>/g" $proj
+                sed -i "s/\<PackageId\>.*\</PackageId\>/\<PackageId\>$PROJECT_NAME\</PackageId\>/g" $proj
                 
                 #Replace Version string in .csproj with generated name
-                sed -i "s/<Version>.*</Version>/<Version>$PROJECT_NAME</Version>/g" $proj
+                #sed -i "s/<Version>.*</Version>/<Version>$PROJECT_NAME</Version>/g" $proj
                 
                 echo "RESULT"
                 cat $proj
