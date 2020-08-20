@@ -18,7 +18,7 @@ for dir in *; do
     if [ -d "$dir" ]; then
         # Will not run if directory name has test within it
         if [[ ${dir} != *"test"* ]] && [[ ${dir} != *"Test"* ]]; then
-            #echo $dir
+            # Move into directory
             cd $dir
             rm -f *.nupkg
             # Loop through all .csproj files (should only be one per folder)
@@ -31,14 +31,14 @@ for dir in *; do
                 if [ "$USE_NAME_SUFFIX" = true ]; then
                     PROJECT_NAME="${PROJECT_NAME}${PACKAGE_NAME_SUFFIX}"
                 fi
-                #echo $PROJECT_NAME
-                
+
                 #Replace Project name in .csproj with generated name
                 sed -i "s/<PackageId>.*<\/PackageId>/<PackageId>$PROJECT_NAME<\/PackageId>/g" $proj
                 
                 #Replace Version string in .csproj with generated name
                 sed -i "s/<Version>.*<\/Version>/<Version>$VERSION_STRING<\/Version>/g" $proj
             done    
+            # Remember to come back out of directory
             cd ..
         fi
     fi
@@ -50,13 +50,19 @@ for dir in *; do
     if [ -d "$dir" ]; then
         # Will not run if directory name has test within it
         if [[ ${dir} != *"test"* ]] && [[ ${dir} != *"Test"* ]]; then
+            # Move into directory
             cd $dir
-
+        
+            # Pack
             dotnet pack -c "$BUILD_CONFIGURATION" -o .
+            
+            # Push
             dotnet nuget push *.nupkg -s $NUGET_SOURCE -k $NUGET_API_KEY --skip-duplicate 
             
+            # Copy packages to the storage directory (to upload as artefacts later)
             cp *.nupkg ${ROOT}/packages/
             
+            # Remember to come back out of directory
             cd ..
         fi
     fi
