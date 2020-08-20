@@ -8,12 +8,8 @@ inputs:
 outputs:
   random-number: 
     description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-id }}
+    value: 5
 runs:
   using: "composite"
   steps: 
     - run: echo Hello ${{ inputs.who-to-greet }}.
-      shell: bash
-    - id: random-number-generator
-      run: echo "::set-output name=random-id::$(echo $RANDOM)"
-      shell: bash
