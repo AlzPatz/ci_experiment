@@ -29,7 +29,7 @@ runs:
   using: "composite"
   steps:
     - name: Run pack and push script for requested configuration
-      run: packandpush.sh
+      run: ${{ github.action_path }}/packandpush.sh
       shell: bash
       end:
         TEST_VARIABLE: ${{ inputs.Package-Name-Suffix }}
