@@ -95,7 +95,9 @@ jobs:
           with:
               path: ${{ env.VERSION_DOT_JSON_DIR }}
         - name: Create Nuget Directory
-          run: mkdir ./packages
+          run: |
+            cd .
+            mkdir packages
         - name: Checkout local actions
           uses: actions/checkout@v1
         - name: If pushing to master, pack a RELEASE version with 1.2.3 format and upload to nuget.org
