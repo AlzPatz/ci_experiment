@@ -19,6 +19,9 @@ cd $TOP_LEVEL_SOURCE_DIR
 pwd
 ls
 cd .
+echo "what's here"
+ls
 cd packages
+pwd
 touch ${VERSION_STRING}.txt
 ls
