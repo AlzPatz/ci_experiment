@@ -87,7 +87,7 @@ jobs:
     steps:
       - name: Trying an action   
         id: an_action_id
-        uses: ./gitbug/actions/packpushproject.yml
+        uses: ./github/actions/packandpushproject.yml
         with:
           who-to-greet: 'Ryan  Adams'
       - name: Writing action output to console
