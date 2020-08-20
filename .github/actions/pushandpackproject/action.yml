@@ -31,6 +31,6 @@ runs:
     - name: Run pack and push script for requested configuration
       run: ${{ github.action_path }}/packandpush.sh
       shell: bash
-      end:
+      env:
         TEST_VARIABLE_0: ${{ inputs.Package-Name-Suffix }}
         TEST_VARIABLE_1: ${{ inputs.Nuget-Api-Key }}
