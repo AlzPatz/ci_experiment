@@ -28,7 +28,8 @@ for dir in *; do
                 # Will not run if no files are found
                 [ -f "$proj" ] || break
                 echo $proj
-            done          
+            done    
+            cd ..
         fi
     fi
 done
